@@ -228,7 +228,7 @@ var PasswordSettingTab = class extends import_obsidian.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Settings for Password Protection plugin." });
+    containerEl.createEl("h2", { text: "Setting for Password Protection plugin." });
     new import_obsidian.Setting(containerEl).setName("The folder need to be protected").setDesc("With relative path, the '/' is the root path of vault folder").addText((text) => text.setPlaceholder("Enter path").setValue(this.plugin.settings.protectedPath).onChange(async (value) => {
       var path = value.toLowerCase();
       if (path.length == 0 || path[0] != "/") {

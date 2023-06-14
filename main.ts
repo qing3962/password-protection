@@ -2,8 +2,6 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 const ENCRYPT_KEY = 30;
 
-// Remember to rename these classes and interfaces!
-
 interface PasswordPluginSettings {
     protectedPath: string;
     protectEnabled: boolean;
@@ -248,7 +246,7 @@ class PasswordSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        containerEl.createEl('h2', {text: 'Settings for Password Protection plugin.'});
+        containerEl.createEl('h2', {text: 'Setting for Password Protection plugin.'});
 
         new Setting(containerEl)
             .setName('The folder need to be protected')
