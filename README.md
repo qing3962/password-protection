@@ -1,95 +1,49 @@
-# Obsidian Sample Plugin
+# Obsidian Password Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+### Purpose
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
+I developed this plugin to prevent my girlfriend from peeking my private notes or diaries.  
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+For a person familiar with Obsidian, this plugin is useless, because he can easily disable this plugin, but for my girlfriend, this plugin serves my purpose.  
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+### What does this plugin do?
 
-## First time developing plugins?
+No encrypt, no decrypt, This plugin doesn't modify your notes, it will not do anything with your notes.  
 
-Quick starting guide for new plugin devs:
+After you enable it, when you open a note, if the folder path of the note matches the path of the protected folder that you set, a password verification box will pop up, and you can only continue to open the note if you enter the correct password.  
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+If you set the protected folder path to the root path (/), when you launch Obsidian, a password verification box will present, enter the correct password, you can just open a note.  
 
-## Releasing new releases
+Once you have entered the correct password, you will not be asked to enter it again when opening other protected files.  
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+If you want to turn protection on again, you can go to the command panel, type "pass", find the command: Open password protection, run it, when you open a protected note, the password verification box will pop up again.  
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.
 
-## Adding your plugin to the community plugin list
+------  
 
-- Check https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+# 中文版说明 (For chinese)
 
-## How to use
+### 目的
 
-- Clone this repo.
-- `npm i` or `yarn` to install dependencies
-- `npm run dev` to start compilation in watch mode.
+我开发这个插件的目的是，防止我的女朋友偷看我的私人笔记或日记。  
 
-## Manually installing the plugin
+对于一个熟悉 Obsidian 的人来说，这个插件是没有用的，因为他可以轻易的使这个插件失效，但是对我的女朋友来说，这个插件能达到我的目的。  
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+## 这个插件做了什么？
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+这个插件不会加密和解密你的笔记，也不会修改你的笔记，它不会对你的笔记做任何事。  
 
-## Funding URL
+在你启用它后，当你打开一篇笔记，如果笔记所在的文件夹路径，和你设置的受保护文件夹路径匹配，将会弹出一个密码验证框，只有输入正确的密码，你才能继续打开这篇笔记。
 
-You can include funding URLs where people who use your plugin can financially support it.
+如果你设置的受保护文件夹路径是根路径（/），那么，当你启动 Obsidian，你就会看到一个密码验证框，只有输入正确的密码，你才能打开任何一篇笔记。
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+一旦输入过一次正确的密码，那么再打开其他受保护的文件时，不会要求再次输入。
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
+如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令：Open password protection，执行它，那么再要打开受保护的文件，会再次弹出密码验证框。
 
-If you have multiple URLs, you can also do:
+在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+------  
 
-## API Documentation
-
-See https://github.com/obsidianmd/obsidian-api
+![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22obsidian-password%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)

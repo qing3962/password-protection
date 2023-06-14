@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "password-protection",
+	"version": "1.0.3",
+	"description": "This is a password plugin for protecting your private notes and diary, no encrypt, no decrypt.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
