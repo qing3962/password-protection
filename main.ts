@@ -268,9 +268,7 @@ class PasswordSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName(`Enable protecting folder with password.`)
-            .setDesc(
-                `A password will be required to enable or disable the protection.`
-            )
+            .setDesc(`A password will be required to enable or disable the protection.`)
             .addToggle((toggle) =>
                 toggle
                     .setValue(this.plugin.settings.protectEnabled)
@@ -351,12 +349,12 @@ class SetPasswordModal extends Modal {
         messageEl.show();
 
         // make a div for save and cancel button
-        const buttonContainerEl = contentEl.createDiv();
-        buttonContainerEl.style.marginBottom = '1em';
-        const saveBtnEl = buttonContainerEl.createEl('button', { text: 'Save' });
-        saveBtnEl.style.marginLeft = '1em';
-        const cancelBtnEl = buttonContainerEl.createEl('button', { text: 'Cancel' });
-        cancelBtnEl.style.marginLeft = '2em';
+        //const buttonContainerEl = contentEl.createDiv();
+        //buttonContainerEl.style.marginBottom = '1em';
+        //const saveBtnEl = buttonContainerEl.createEl('button', { text: 'Save' });
+        //saveBtnEl.style.marginLeft = '1em';
+        //const cancelBtnEl = buttonContainerEl.createEl('button', { text: 'Cancel' });
+        //cancelBtnEl.style.marginLeft = '1em';
 
         // switch hint text
         const switchHint = (color: string, index: number) => {
@@ -396,8 +394,10 @@ class SetPasswordModal extends Modal {
         }
 
         // check the input and confirm
-        const pwChecker = (ev: Event) => {
-            ev.preventDefault();
+        const pwChecker = (ev: Event | null) => {
+            if (ev != null) {
+                ev.preventDefault();
+            }
 
             let goodToGo = pwConfirmChecker();
             if (!goodToGo) {
@@ -414,17 +414,32 @@ class SetPasswordModal extends Modal {
             this.close();
         }
 
-        //register the button's event handler
-        saveBtnEl.addEventListener('click', pwChecker);
-
         // cancel the modal
-        const cancelEnable = (ev: Event) => {
-            ev.preventDefault();
+        const cancelEnable = (ev: Event | null) => {
+            if (ev != null) {
+                ev.preventDefault();
+            }
             this.close();
         }
 
+        new Setting(contentEl)
+            .addButton((btn) =>
+                btn
+                    .setButtonText("OK")
+                    .setCta()
+                    .onClick(() => {
+                        pwChecker(null);
+                    }))
+            .addButton((btn) =>
+                btn
+                    .setButtonText("Cancel")
+                    .onClick(() => {
+                        cancelEnable(null);
+                    }));
+
         //register the button's event handler
-        cancelBtnEl.addEventListener('click', cancelEnable);
+        //saveBtnEl.addEventListener('click', pwChecker);
+        //cancelBtnEl.addEventListener('click', cancelEnable);
     }
 
     onClose() {
@@ -471,12 +486,12 @@ class VerifyPasswordModal extends Modal {
         messageEl.show();
 
         // make a div for save and cancel button
-        const buttonContainerEl = contentEl.createDiv();
-        buttonContainerEl.style.marginBottom = '1em';
-        const saveBtnEl = buttonContainerEl.createEl('button', { text: 'Ok' });
-        saveBtnEl.style.marginLeft = '1em';
-        const cancelBtnEl = buttonContainerEl.createEl('button', { text: 'Cancel' });
-        cancelBtnEl.style.marginLeft = '2em';
+        //const buttonContainerEl = contentEl.createDiv();
+        //buttonContainerEl.style.marginBottom = '1em';
+        //const saveBtnEl = buttonContainerEl.createEl('button', { text: 'Ok' });
+        //saveBtnEl.style.marginLeft = '1em';
+        //const cancelBtnEl = buttonContainerEl.createEl('button', { text: 'Cancel' });
+        //cancelBtnEl.style.marginLeft = '1em';
 
         pwInputEl.addEventListener('input', (event) => {
             messageEl.style.color = '';
@@ -517,8 +532,10 @@ class VerifyPasswordModal extends Modal {
         }
 
         // check the input and confirm
-        const pwChecker = (ev: Event) => {
-            ev.preventDefault();
+        const pwChecker = (ev: Event | null) => {
+            if (ev != null) {
+                ev.preventDefault();
+            }
 
             let goodToGo = pwConfirmChecker();
             if (!goodToGo) {
@@ -530,17 +547,32 @@ class VerifyPasswordModal extends Modal {
             this.close();
         }
 
-        //register the button's event handler
-        saveBtnEl.addEventListener('click', pwChecker);
-
         // cancel the modal
-        const cancelEnable = (ev: Event) => {
-            ev.preventDefault();
+        const cancelEnable = (ev: Event | null) => {
+            if (ev != null) {
+                ev.preventDefault();
+            }
             this.close();
         }
 
+        new Setting(contentEl)
+            .addButton((btn) =>
+                btn
+                    .setButtonText("OK")
+                    .setCta()
+                    .onClick(() => {
+                        pwChecker(null);
+                    }))
+            .addButton((btn) =>
+                btn
+                    .setButtonText("Cancel")
+                    .onClick(() => {
+                        cancelEnable(null);
+                    }));
+
         //register the button's event handler
-        cancelBtnEl.addEventListener('click', cancelEnable);
+        //saveBtnEl.addEventListener('click', pwChecker);
+        //cancelBtnEl.addEventListener('click', cancelEnable);
     }
 
     onClose() {

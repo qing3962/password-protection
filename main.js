@@ -239,9 +239,7 @@ var PasswordSettingTab = class extends import_obsidian.PluginSettingTab {
       }
       this.plugin.settings.protectedPath = path;
     })).setDisabled(this.plugin.settings.protectEnabled);
-    new import_obsidian.Setting(containerEl).setName(`Enable protecting folder with password.`).setDesc(
-      `A password will be required to enable or disable the protection.`
-    ).addToggle(
+    new import_obsidian.Setting(containerEl).setName(`Enable protecting folder with password.`).setDesc(`A password will be required to enable or disable the protection.`).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.protectEnabled).onChange((value) => {
         if (value) {
           this.plugin.settings.protectEnabled = false;
@@ -302,12 +300,6 @@ var SetPasswordModal = class extends import_obsidian.Modal {
     messageEl.style.marginBottom = "1em";
     messageEl.setText("Please enter your password in both boxes.");
     messageEl.show();
-    const buttonContainerEl = contentEl.createDiv();
-    buttonContainerEl.style.marginBottom = "1em";
-    const saveBtnEl = buttonContainerEl.createEl("button", { text: "Save" });
-    saveBtnEl.style.marginLeft = "1em";
-    const cancelBtnEl = buttonContainerEl.createEl("button", { text: "Cancel" });
-    cancelBtnEl.style.marginLeft = "2em";
     const switchHint = (color, index) => {
       messageEl.style.color = color;
       messageEl.setText(inputHint[index]);
@@ -335,7 +327,9 @@ var SetPasswordModal = class extends import_obsidian.Modal {
       return true;
     };
     const pwChecker = (ev) => {
-      ev.preventDefault();
+      if (ev != null) {
+        ev.preventDefault();
+      }
       let goodToGo = pwConfirmChecker();
       if (!goodToGo) {
         return;
@@ -346,12 +340,17 @@ var SetPasswordModal = class extends import_obsidian.Modal {
       this.plugin.settings.protectEnabled = true;
       this.close();
     };
-    saveBtnEl.addEventListener("click", pwChecker);
     const cancelEnable = (ev) => {
-      ev.preventDefault();
+      if (ev != null) {
+        ev.preventDefault();
+      }
       this.close();
     };
-    cancelBtnEl.addEventListener("click", cancelEnable);
+    new import_obsidian.Setting(contentEl).addButton((btn) => btn.setButtonText("OK").setCta().onClick(() => {
+      pwChecker(null);
+    })).addButton((btn) => btn.setButtonText("Cancel").onClick(() => {
+      cancelEnable(null);
+    }));
   }
   onClose() {
     const { contentEl } = this;
@@ -384,12 +383,6 @@ var VerifyPasswordModal = class extends import_obsidian.Modal {
     messageEl.style.marginBottom = "1em";
     messageEl.setText("Please enter you password to verify.");
     messageEl.show();
-    const buttonContainerEl = contentEl.createDiv();
-    buttonContainerEl.style.marginBottom = "1em";
-    const saveBtnEl = buttonContainerEl.createEl("button", { text: "Ok" });
-    saveBtnEl.style.marginLeft = "1em";
-    const cancelBtnEl = buttonContainerEl.createEl("button", { text: "Cancel" });
-    cancelBtnEl.style.marginLeft = "2em";
     pwInputEl.addEventListener("input", (event) => {
       messageEl.style.color = "";
       messageEl.setText("Please enter you password to verify.");
@@ -417,7 +410,9 @@ var VerifyPasswordModal = class extends import_obsidian.Modal {
       return true;
     };
     const pwChecker = (ev) => {
-      ev.preventDefault();
+      if (ev != null) {
+        ev.preventDefault();
+      }
       let goodToGo = pwConfirmChecker();
       if (!goodToGo) {
         return;
@@ -425,12 +420,17 @@ var VerifyPasswordModal = class extends import_obsidian.Modal {
       this.plugin.isVerifyPasswordCorrect = true;
       this.close();
     };
-    saveBtnEl.addEventListener("click", pwChecker);
     const cancelEnable = (ev) => {
-      ev.preventDefault();
+      if (ev != null) {
+        ev.preventDefault();
+      }
       this.close();
     };
-    cancelBtnEl.addEventListener("click", cancelEnable);
+    new import_obsidian.Setting(contentEl).addButton((btn) => btn.setButtonText("OK").setCta().onClick(() => {
+      pwChecker(null);
+    })).addButton((btn) => btn.setButtonText("Cancel").onClick(() => {
+      cancelEnable(null);
+    }));
   }
   onClose() {
     this.plugin.isVerifyPasswordWaitting = false;
