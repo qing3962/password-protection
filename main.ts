@@ -1,6 +1,7 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, setIcon, WorkspaceLeaf, FileView } from 'obsidian';
+import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, setIcon, WorkspaceLeaf, FileView } from 'obsidian';
 
 const ENCRYPT_KEY = 30;
+const ROOT_PATH = normalizePath("/");
 
 interface PasswordPluginSettings {
     protectedPath: string;
@@ -9,7 +10,7 @@ interface PasswordPluginSettings {
 }
 
 const DEFAULT_SETTINGS: PasswordPluginSettings = {
-    protectedPath: '/',
+    protectedPath: ROOT_PATH,
     protectEnabled: false,
     password: '',
 }
@@ -37,8 +38,8 @@ export default class PasswordPlugin extends Plugin {
 
         // This adds a simple command that can be triggered anywhere
         this.addCommand({
-            id: 'Password: Open password protection',
-            name: 'Open password protection',
+            id: 'Open password protection',
+            name: 'Open',
             callback: () => {
                 this.OpenPasswordProtection();
             }
@@ -49,7 +50,7 @@ export default class PasswordPlugin extends Plugin {
 
         // when the layout is ready, check if the root folder need to be protected, if so, close all notes, show the password dialog
         this.app.workspace.onLayoutReady(() => {
-            if (this.settings.protectEnabled && this.settings.protectedPath == '/') {
+            if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
                 if (!this.isVerifyPasswordCorrect) {
                     this.closeLeaves(null);
                     this.ClosePasswordProtection(null);
@@ -75,7 +76,7 @@ export default class PasswordPlugin extends Plugin {
 
     // open note
     async openLeave(file: TFile | null) {
-        var leaf = this.app.workspace.getLeaf(false);
+        let leaf = this.app.workspace.getLeaf(false);
         if (leaf != null && file != null) {
             leaf.openFile(file);
         }
@@ -163,25 +164,16 @@ export default class PasswordPlugin extends Plugin {
 
     // check if the file need to be protected
     isProtectedFile(file: TFile): boolean {
-        if (file === null) {
+        if (file == null || file.path == null || file.path == "") {
             return false;
         }
-        var path = file.path.toLowerCase();
-        if (file.path[0] != '/') {
-            path = '/' + path;
-        }
+        let path = normalizePath(file.path);
+        path = ROOT_PATH + path;
+
         const lastSlashIndex = path.lastIndexOf("/");
-        const filePath = path.substring(0, lastSlashIndex + 1);
+        let filePath = path.substring(0, lastSlashIndex + 1);
 
-        var protectedPath = this.settings.protectedPath.toLowerCase();
-        if (protectedPath[0] != '/') {
-            protectedPath = '/' + protectedPath;
-        }
-        if (protectedPath[protectedPath.length - 1] != '/') {
-            protectedPath = protectedPath + '/';
-        }
-
-        if (filePath < protectedPath) {
+        if (filePath.length < this.settings.protectedPath.length) {
             return false;
         }
 
@@ -255,19 +247,16 @@ class PasswordSettingTab extends PluginSettingTab {
                 .setPlaceholder('Enter path')
                 .setValue(this.plugin.settings.protectedPath)
                 .onChange(async (value) => {
-                    var path = value.toLowerCase();
-                    if (path.length == 0 || path[0] != '/') {
-                        path = '/' + path;
-                    }
-                    if (path[path.length - 1] != '/') {
-                        path = path + '/';
+                    let path = normalizePath(value);
+                    if ( path != ROOT_PATH) {
+                        path = ROOT_PATH + path + '/';
                     }
                     this.plugin.settings.protectedPath = path;
                 }))
             .setDisabled(this.plugin.settings.protectEnabled);
 
         new Setting(containerEl)
-            .setName(`Enable protecting folder with password.`)
+            .setName(`Enable/Disable protection with password.`)
             .setDesc(`A password will be required to enable or disable the protection.`)
             .addToggle((toggle) =>
                 toggle
@@ -315,17 +304,13 @@ class SetPasswordModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
 
-        var inputHint = [
+        const inputHint = [
             'Please enter your password in both boxes.',
             'Passwords must match.',
             'Password must be valid characters and contains 6~20 characters.',
             'Password is valid.'];
 
-        // title - to let the user know what the modal will do
-        const titleEl = contentEl.createDiv();
-        titleEl.style.fontWeight = 'bold';
-        titleEl.style.marginBottom = '1em';
-        titleEl.setText('Set a password to protect a folder');
+        contentEl.createEl("h2", { text: "Set a password to protect a folder" });
 
         // make a div for user's password input
         const inputPwContainerEl = contentEl.createDiv();
@@ -347,14 +332,6 @@ class SetPasswordModal extends Modal {
         messageEl.style.marginBottom = '1em';
         messageEl.setText('Please enter your password in both boxes.');
         messageEl.show();
-
-        // make a div for save and cancel button
-        //const buttonContainerEl = contentEl.createDiv();
-        //buttonContainerEl.style.marginBottom = '1em';
-        //const saveBtnEl = buttonContainerEl.createEl('button', { text: 'Save' });
-        //saveBtnEl.style.marginLeft = '1em';
-        //const cancelBtnEl = buttonContainerEl.createEl('button', { text: 'Cancel' });
-        //cancelBtnEl.style.marginLeft = '1em';
 
         // switch hint text
         const switchHint = (color: string, index: number) => {
@@ -405,7 +382,7 @@ class SetPasswordModal extends Modal {
             }
 
             //deal with accents - normalize Unicode
-            var password = pwInputEl.value.normalize('NFC');
+            let password = pwInputEl.value.normalize('NFC');
             const encryptedText = this.plugin.encrypt(password, ENCRYPT_KEY);
 
             // if all checks pass, save to settings
@@ -436,10 +413,6 @@ class SetPasswordModal extends Modal {
                     .onClick(() => {
                         cancelEnable(null);
                     }));
-
-        //register the button's event handler
-        //saveBtnEl.addEventListener('click', pwChecker);
-        //cancelBtnEl.addEventListener('click', cancelEnable);
     }
 
     onClose() {
@@ -466,10 +439,7 @@ class VerifyPasswordModal extends Modal {
         contentEl.empty();
 
         // title - to let the user know what the modal will do
-        const titleEl = contentEl.createDiv();
-        titleEl.style.fontWeight = 'bold';
-        titleEl.style.marginBottom = '1em';
-        titleEl.setText('Verify password');
+        contentEl.createEl("h2", { text: "Verify password" });
 
         // make a div for user's password input
         const inputPwContainerEl = contentEl.createDiv();
@@ -484,14 +454,6 @@ class VerifyPasswordModal extends Modal {
         messageEl.style.marginBottom = '1em';
         messageEl.setText('Please enter you password to verify.');
         messageEl.show();
-
-        // make a div for save and cancel button
-        //const buttonContainerEl = contentEl.createDiv();
-        //buttonContainerEl.style.marginBottom = '1em';
-        //const saveBtnEl = buttonContainerEl.createEl('button', { text: 'Ok' });
-        //saveBtnEl.style.marginLeft = '1em';
-        //const cancelBtnEl = buttonContainerEl.createEl('button', { text: 'Cancel' });
-        //cancelBtnEl.style.marginLeft = '1em';
 
         pwInputEl.addEventListener('input', (event) => {
             messageEl.style.color = '';
@@ -515,7 +477,7 @@ class VerifyPasswordModal extends Modal {
             }
 
             //deal with accents - normalize Unicode
-            var password = pwInputEl.value.normalize('NFC');
+            let password = pwInputEl.value.normalize('NFC');
             const decryptedText = this.plugin.decrypt(this.plugin.settings.password, ENCRYPT_KEY);
             //console.log(`Decrypted text: ${decryptedText}`);
 
@@ -569,10 +531,6 @@ class VerifyPasswordModal extends Modal {
                     .onClick(() => {
                         cancelEnable(null);
                     }));
-
-        //register the button's event handler
-        //saveBtnEl.addEventListener('click', pwChecker);
-        //cancelBtnEl.addEventListener('click', cancelEnable);
     }
 
     onClose() {

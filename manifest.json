@@ -1,11 +1,11 @@
 {
 	"id": "password-protection",
 	"name": "Password Protection",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"minAppVersion": "0.15.0",
-	"description": "This is a password plugin for protecting your private notes and diary, no encrypt, no decrypt.",
-	"author": "qing.li",
+	"description": "Protect your private notes and diary with a password, no encrypt, no decrypt.",
+	"author": "Qing Li",
 	"authorUrl": "https://qing3962.github.io/",
-	"fundingUrl": "",
+	"fundingUrl": "https://bmc.link/qing3962",
 	"isDesktopOnly": false
 }

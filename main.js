@@ -29,8 +29,9 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 var import_obsidian = require("obsidian");
 var ENCRYPT_KEY = 30;
+var ROOT_PATH = (0, import_obsidian.normalizePath)("/");
 var DEFAULT_SETTINGS = {
-  protectedPath: "/",
+  protectedPath: ROOT_PATH,
   protectEnabled: false,
   password: ""
 };
@@ -52,15 +53,15 @@ var PasswordPlugin = class extends import_obsidian.Plugin {
       });
     }
     this.addCommand({
-      id: "Password: Open password protection",
-      name: "Open password protection",
+      id: "Open password protection",
+      name: "Open",
       callback: () => {
         this.OpenPasswordProtection();
       }
     });
     this.addSettingTab(new PasswordSettingTab(this.app, this));
     this.app.workspace.onLayoutReady(() => {
-      if (this.settings.protectEnabled && this.settings.protectedPath == "/") {
+      if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
         if (!this.isVerifyPasswordCorrect) {
           this.closeLeaves(null);
           this.ClosePasswordProtection(null);
@@ -80,7 +81,7 @@ var PasswordPlugin = class extends import_obsidian.Plugin {
   }
   // open note
   async openLeave(file) {
-    var leaf = this.app.workspace.getLeaf(false);
+    let leaf = this.app.workspace.getLeaf(false);
     if (leaf != null && file != null) {
       leaf.openFile(file);
     }
@@ -159,23 +160,14 @@ var PasswordPlugin = class extends import_obsidian.Plugin {
   }
   // check if the file need to be protected
   isProtectedFile(file) {
-    if (file === null) {
+    if (file == null || file.path == null || file.path == "") {
       return false;
     }
-    var path = file.path.toLowerCase();
-    if (file.path[0] != "/") {
-      path = "/" + path;
-    }
+    let path = (0, import_obsidian.normalizePath)(file.path);
+    path = ROOT_PATH + path;
     const lastSlashIndex = path.lastIndexOf("/");
-    const filePath = path.substring(0, lastSlashIndex + 1);
-    var protectedPath = this.settings.protectedPath.toLowerCase();
-    if (protectedPath[0] != "/") {
-      protectedPath = "/" + protectedPath;
-    }
-    if (protectedPath[protectedPath.length - 1] != "/") {
-      protectedPath = protectedPath + "/";
-    }
-    if (filePath < protectedPath) {
+    let filePath = path.substring(0, lastSlashIndex + 1);
+    if (filePath.length < this.settings.protectedPath.length) {
       return false;
     }
     if (filePath.startsWith(this.settings.protectedPath)) {
@@ -230,16 +222,13 @@ var PasswordSettingTab = class extends import_obsidian.PluginSettingTab {
     containerEl.empty();
     containerEl.createEl("h2", { text: "Setting for Password Protection plugin." });
     new import_obsidian.Setting(containerEl).setName("The folder need to be protected").setDesc("With relative path, the '/' is the root path of vault folder").addText((text) => text.setPlaceholder("Enter path").setValue(this.plugin.settings.protectedPath).onChange(async (value) => {
-      var path = value.toLowerCase();
-      if (path.length == 0 || path[0] != "/") {
-        path = "/" + path;
-      }
-      if (path[path.length - 1] != "/") {
-        path = path + "/";
+      let path = (0, import_obsidian.normalizePath)(value);
+      if (path != ROOT_PATH) {
+        path = ROOT_PATH + path + "/";
       }
       this.plugin.settings.protectedPath = path;
     })).setDisabled(this.plugin.settings.protectEnabled);
-    new import_obsidian.Setting(containerEl).setName(`Enable protecting folder with password.`).setDesc(`A password will be required to enable or disable the protection.`).addToggle(
+    new import_obsidian.Setting(containerEl).setName(`Enable/Disable protection with password.`).setDesc(`A password will be required to enable or disable the protection.`).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.protectEnabled).onChange((value) => {
         if (value) {
           this.plugin.settings.protectEnabled = false;
@@ -275,16 +264,13 @@ var SetPasswordModal = class extends import_obsidian.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    var inputHint = [
+    const inputHint = [
       "Please enter your password in both boxes.",
       "Passwords must match.",
       "Password must be valid characters and contains 6~20 characters.",
       "Password is valid."
     ];
-    const titleEl = contentEl.createDiv();
-    titleEl.style.fontWeight = "bold";
-    titleEl.style.marginBottom = "1em";
-    titleEl.setText("Set a password to protect a folder");
+    contentEl.createEl("h2", { text: "Set a password to protect a folder" });
     const inputPwContainerEl = contentEl.createDiv();
     inputPwContainerEl.style.marginBottom = "1em";
     const pwInputEl = inputPwContainerEl.createEl("input", { type: "password", value: "" });
@@ -334,7 +320,7 @@ var SetPasswordModal = class extends import_obsidian.Modal {
       if (!goodToGo) {
         return;
       }
-      var password = pwInputEl.value.normalize("NFC");
+      let password = pwInputEl.value.normalize("NFC");
       const encryptedText = this.plugin.encrypt(password, ENCRYPT_KEY);
       this.plugin.settings.password = encryptedText;
       this.plugin.settings.protectEnabled = true;
@@ -369,10 +355,7 @@ var VerifyPasswordModal = class extends import_obsidian.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    const titleEl = contentEl.createDiv();
-    titleEl.style.fontWeight = "bold";
-    titleEl.style.marginBottom = "1em";
-    titleEl.setText("Verify password");
+    contentEl.createEl("h2", { text: "Verify password" });
     const inputPwContainerEl = contentEl.createDiv();
     inputPwContainerEl.style.marginBottom = "1em";
     const pwInputEl = inputPwContainerEl.createEl("input", { type: "password", value: "" });
@@ -398,7 +381,7 @@ var VerifyPasswordModal = class extends import_obsidian.Modal {
         messageEl.setText("Password isn't match.");
         return false;
       }
-      var password = pwInputEl.value.normalize("NFC");
+      let password = pwInputEl.value.normalize("NFC");
       const decryptedText = this.plugin.decrypt(this.plugin.settings.password, ENCRYPT_KEY);
       if (password !== decryptedText) {
         messageEl.style.color = "red";

@@ -16,7 +16,7 @@ If you set the protected folder path to the root path (/), when you launch Obsid
 
 Once you have entered the correct password, you will not be asked to enter it again when opening other protected files.  
 
-If you want to turn protection on again, you can go to the command panel, type "pass", find the command: Open password protection, run it, when you open a protected note, the password verification box will pop up again.  
+If you want to turn on protection again, you invoke the command panel, type "pass", find the command - Password Protection: Open, run it, when you open a protected note, the password verification box will pop up again.  
 
 In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.
 
@@ -40,10 +40,14 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 
 一旦输入过一次正确的密码，那么再打开其他受保护的文件时，不会要求再次输入。
 
-如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令：Open password protection，执行它，那么再要打开受保护的文件，会再次弹出密码验证框。
+如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令 Password Protection: Open，执行它，那么再要打开受保护的文件，会再次弹出密码验证框。
 
 在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。
 
 ------  
 
-![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22obsidian-password%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
+![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22obsidian-password%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)  
+
+------  
+
+![Buy me a coffee](https://bmc.link/qing3962)  
