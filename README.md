@@ -50,4 +50,4 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 
 ------  
 
-![Buy me a coffee](https://bmc.link/qing3962)  
+<a href="https://bmc.link/qing3962">Buy me a coffee?</a>  
