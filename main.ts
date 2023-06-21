@@ -41,7 +41,7 @@ export default class PasswordPlugin extends Plugin {
             id: 'Open password protection',
             name: 'Open',
             callback: () => {
-                this.OpenPasswordProtection();
+                this.openPasswordProtection();
             }
         });
 
@@ -53,7 +53,7 @@ export default class PasswordPlugin extends Plugin {
             if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
                 if (!this.isVerifyPasswordCorrect) {
                     this.closeLeaves(null);
-                    this.ClosePasswordProtection(null);
+                    this.closePasswordProtection(null);
                 }
             }
         });
@@ -65,7 +65,7 @@ export default class PasswordPlugin extends Plugin {
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
                     // firstly close the file, then show the password dialog
                     this.closeLeaves(file);
-                    this.ClosePasswordProtection(file);
+                    this.closePasswordProtection(file);
                 }
             }
         }));
@@ -115,17 +115,17 @@ export default class PasswordPlugin extends Plugin {
     switchPasswordProtection() {
         if (this.settings.protectEnabled) {
             if (!this.isVerifyPasswordCorrect) {
-                this.ClosePasswordProtection(null);
+                this.closePasswordProtection(null);
             } else {
-                this.OpenPasswordProtection();
+                this.openPasswordProtection();
             }
         } else {
-            this.OpenPasswordProtection();
+            this.openPasswordProtection();
         }
     }
 
     // open password protection
-    OpenPasswordProtection() {
+    openPasswordProtection() {
         if (!this.settings.protectEnabled) {
             new Notice("Please firstly set password in the setting of Password Protection plugin!");
         } else {
@@ -140,7 +140,7 @@ export default class PasswordPlugin extends Plugin {
     }
 
     // close password protection
-    ClosePasswordProtection(file: TFile | null) {
+    closePasswordProtection(file: TFile | null) {
         if (!this.settings.protectEnabled) {
             setIcon(this.passwordRibbonBtn, "lock");
             this.passwordRibbonBtn.ariaLabel = "Open password protection";
@@ -238,8 +238,6 @@ class PasswordSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        containerEl.createEl('h2', {text: 'Setting for Password Protection plugin.'});
-
         new Setting(containerEl)
             .setName('The folder need to be protected')
             .setDesc('With relative path, the \'/\' is the root path of vault folder')
@@ -268,7 +266,7 @@ class PasswordSettingTab extends PluginSettingTab {
                             const setModal = new SetPasswordModal(this.app, this.plugin, () => {
                                 if (this.plugin.settings.protectEnabled) {
                                     this.plugin.saveSettings();
-                                    this.plugin.OpenPasswordProtection();
+                                    this.plugin.openPasswordProtection();
                                 }
                                 this.display();
                             }).open();
@@ -279,7 +277,7 @@ class PasswordSettingTab extends PluginSettingTab {
                                     if (this.plugin.isVerifyPasswordCorrect) {
                                         this.plugin.settings.protectEnabled = false;
                                         this.plugin.saveSettings();
-                                        this.plugin.ClosePasswordProtection(null);
+                                        this.plugin.closePasswordProtection(null);
                                     }
                                     this.display();
                                 }).open();
@@ -452,12 +450,12 @@ class VerifyPasswordModal extends Modal {
         //message modal - to fire if either input is empty
         const messageEl = contentEl.createDiv();
         messageEl.style.marginBottom = '1em';
-        messageEl.setText('Please enter you password to verify.');
+        messageEl.setText('Please enter your password to verify.');
         messageEl.show();
 
         pwInputEl.addEventListener('input', (event) => {
             messageEl.style.color = '';
-            messageEl.setText('Please enter you password to verify.');
+            messageEl.setText('Please enter your password to verify.');
         });
 
         // check the confirm input
