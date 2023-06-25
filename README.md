@@ -1,10 +1,10 @@
 # Password Protection Plugin
 
-### Purpose
+## Purpose
 
 I developed this plugin to prevent my girlfriend from peeking my private notes or diaries.  
 
-### What does this plugin do?
+## What does this plugin do?
 
 No encrypt, no decrypt, This plugin doesn't modify your notes, it will not do anything with your notes.  
 
@@ -18,7 +18,7 @@ If you want to turn on protection again, you may invoke the command panel, type 
 
 In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.  
 
-### Installation, Configruation, and Usage
+## Installation, Configruation, and Usage
 
 1. Download the latest release zip of the Password Protection plugin from the [website](https://github.com/qing3962/password-protection/releases).
 
@@ -34,15 +34,19 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 
 7. the password protection plugin start work, when you open a note in the protected path you set, a Password Verify Modal will popup, enter the right password, you just open the note.  
 
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
 ------  
 
 # 中文版说明 (For chinese)
 
-### 目的
+## 目的
 
 我开发这个插件的目的是，防止我的女朋友偷看我的私人笔记或日记。  
 
-### 这个插件做了什么？
+## 这个插件做了什么？
 
 这个插件不会加密和解密你的笔记，也不会修改你的笔记，它不会对你的笔记做任何事。  
 
@@ -56,7 +60,7 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 
 在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。  
 
-### 安装、配置和使用
+## 安装、配置和使用
 
 1. 下载这个插件的最新 Release 版本 zip 包； [下载地址](https://github.com/qing3962/password-protection/releases)
 
@@ -71,6 +75,11 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 6. 点击插件的启用按钮，弹出密码设置框，输入两遍密码，插件启用成功;
 
 7. 当你打开一个位于保护路径下的笔记，将弹出密码验证弹窗，只有输入正确的密码，你才能继续打开笔记。  
+
+
+## 许可证
+
+本插件使用 MIT 许可证。 [MIT License](LICENSE)
 
 ------  
 

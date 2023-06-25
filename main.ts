@@ -1,4 +1,6 @@
 import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, setIcon, WorkspaceLeaf, FileView } from 'obsidian';
+import { I18n } from "./i18n";
+import type { LangType, LangTypeAndAuto, TransItemType } from "./i18n";
 
 const ENCRYPT_KEY = 30;
 const ROOT_PATH = normalizePath("/");
@@ -7,12 +9,14 @@ interface PasswordPluginSettings {
     protectedPath: string;
     protectEnabled: boolean;
     password: string;
+    lang: LangTypeAndAuto;
 }
 
 const DEFAULT_SETTINGS: PasswordPluginSettings = {
     protectedPath: ROOT_PATH,
     protectEnabled: false,
     password: '',
+    lang: "auto",
 }
 
 export default class PasswordPlugin extends Plugin {
@@ -21,17 +25,27 @@ export default class PasswordPlugin extends Plugin {
     isVerifyPasswordCorrect: boolean = false;
 
     passwordRibbonBtn: HTMLElement;
+    i18n: I18n;
 
     async onload() {
         await this.loadSettings();
 
+        // lang should be load early, but after settings
+        this.i18n = new I18n(this.settings.lang, async (lang: LangTypeAndAuto) => {
+            this.settings.lang = lang;
+            await this.saveSettings();
+        });
+        const t = (x: TransItemType, vars?: any) => {
+            return this.i18n.t(x, vars);
+        };
+
         // This creates an icon in the left ribbon.
         if (this.settings.protectEnabled) {
-            this.passwordRibbonBtn = this.addRibbonIcon('unlock', 'Close password protection', (evt: MouseEvent) => {
+            this.passwordRibbonBtn = this.addRibbonIcon('unlock', t("close_password_protection"), (evt: MouseEvent) => {
                 this.switchPasswordProtection();
             });
         } else {
-            this.passwordRibbonBtn = this.addRibbonIcon('lock', 'Open password protection', (evt: MouseEvent) => {
+            this.passwordRibbonBtn = this.addRibbonIcon('lock', t("open_password_protection"), (evt: MouseEvent) => {
                 this.switchPasswordProtection();
             });
         }
@@ -39,7 +53,7 @@ export default class PasswordPlugin extends Plugin {
         // This adds a simple command that can be triggered anywhere
         this.addCommand({
             id: 'Open password protection',
-            name: 'Open',
+            name: t("open"),
             callback: () => {
                 this.openPasswordProtection();
             }
@@ -127,15 +141,15 @@ export default class PasswordPlugin extends Plugin {
     // open password protection
     openPasswordProtection() {
         if (!this.settings.protectEnabled) {
-            new Notice("Please firstly set password in the setting of Password Protection plugin!");
+            new Notice(this.i18n.t("notice_set_password"));
         } else {
             if (this.isVerifyPasswordCorrect) {
                 this.isVerifyPasswordCorrect = false;
             }
             this.closeLeaves(null);
             setIcon(this.passwordRibbonBtn, "unlock");
-            this.passwordRibbonBtn.ariaLabel = "Close password protection";
-            new Notice("Password protection is opened!");
+            this.passwordRibbonBtn.ariaLabel = this.i18n.t("close_password_protection");
+            new Notice(this.i18n.t("password_protection_opened"));
         }
     }
 
@@ -143,7 +157,7 @@ export default class PasswordPlugin extends Plugin {
     closePasswordProtection(file: TFile | null) {
         if (!this.settings.protectEnabled) {
             setIcon(this.passwordRibbonBtn, "lock");
-            this.passwordRibbonBtn.ariaLabel = "Open password protection";
+            this.passwordRibbonBtn.ariaLabel = this.i18n.t("open_password_protection");
         } else {
             if (!this.isVerifyPasswordCorrect) {
                 if (!this.isVerifyPasswordWaitting) {
@@ -153,8 +167,8 @@ export default class PasswordPlugin extends Plugin {
                                 this.openLeave(file);
                             }
                             setIcon(this.passwordRibbonBtn, "lock");
-                            this.passwordRibbonBtn.ariaLabel = "Open password protection";
-                            new Notice("Password protection is closed!");
+                            this.passwordRibbonBtn.ariaLabel = this.i18n.t("open_password_protection");
+                            new Notice(this.i18n.t("password_protection_closed"));
                         }
                     }).open();
                 }
@@ -239,10 +253,10 @@ class PasswordSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         new Setting(containerEl)
-            .setName('The folder need to be protected')
-            .setDesc('With relative path, the \'/\' is the root path of vault folder')
+            .setName(this.plugin.i18n.t("setting_folder_name"))
+            .setDesc(this.plugin.i18n.t("setting_folder_desc"))
             .addText(text => text
-                .setPlaceholder('Enter path')
+                .setPlaceholder(this.plugin.i18n.t("place_holder_enter_path"))
                 .setValue(this.plugin.settings.protectedPath)
                 .onChange(async (value) => {
                     let path = normalizePath(value);
@@ -254,14 +268,13 @@ class PasswordSettingTab extends PluginSettingTab {
             .setDisabled(this.plugin.settings.protectEnabled);
 
         new Setting(containerEl)
-            .setName(`Enable/Disable protection with password.`)
-            .setDesc(`A password will be required to enable or disable the protection.`)
+            .setName(this.plugin.i18n.t("setting_toggle_name"))
+            .setDesc(this.plugin.i18n.t("setting_toggle_desc"))
             .addToggle((toggle) =>
                 toggle
                     .setValue(this.plugin.settings.protectEnabled)
                     .onChange((value) => {
                         if (value) {
-                            //console.log('Enable the protection');
                             this.plugin.settings.protectEnabled = false;
                             const setModal = new SetPasswordModal(this.app, this.plugin, () => {
                                 if (this.plugin.settings.protectEnabled) {
@@ -271,7 +284,6 @@ class PasswordSettingTab extends PluginSettingTab {
                                 this.display();
                             }).open();
                         } else {
-                            //console.log('Disable the protection');
                             if (!this.plugin.isVerifyPasswordWaitting) {
                                 const setModal = new VerifyPasswordModal(this.app, this.plugin, () => {
                                     if (this.plugin.isVerifyPasswordCorrect) {
@@ -303,18 +315,18 @@ class SetPasswordModal extends Modal {
         contentEl.empty();
 
         const inputHint = [
-            'Please enter your password in both boxes.',
-            'Passwords must match.',
-            'Password must be valid characters and contains 6~20 characters.',
-            'Password is valid.'];
+            this.plugin.i18n.t("hint_enter_in_both_boxes"),
+            this.plugin.i18n.t("hint_password_must_match"),
+            this.plugin.i18n.t("hint_password_length"),
+            this.plugin.i18n.t("hint_password_valid_character")];
 
-        contentEl.createEl("h2", { text: "Set a password to protect a folder" });
+        contentEl.createEl("h2", { text: this.plugin.i18n.t("set_password_title") });
 
         // make a div for user's password input
         const inputPwContainerEl = contentEl.createDiv();
         inputPwContainerEl.style.marginBottom = '1em';
         const pwInputEl = inputPwContainerEl.createEl('input', { type: 'password', value: '' });
-        pwInputEl.placeholder = 'Enter password, 6~20 characters';
+        pwInputEl.placeholder = this.plugin.i18n.t("place_holder_enter_password");
         pwInputEl.style.width = '70%';
         pwInputEl.focus();
 
@@ -322,13 +334,13 @@ class SetPasswordModal extends Modal {
         const confirmPwContainerEl = contentEl.createDiv();
         confirmPwContainerEl.style.marginBottom = '1em';
         const pwConfirmEl = confirmPwContainerEl.createEl('input', { type: 'password', value: '' });
-        pwConfirmEl.placeholder = 'Confirm your password';
+        pwConfirmEl.placeholder = this.plugin.i18n.t("confirm_password");
         pwConfirmEl.style.width = '70%';
 
         //message modal - to fire if either input is empty
         const messageEl = contentEl.createDiv();
         messageEl.style.marginBottom = '1em';
-        messageEl.setText('Please enter your password in both boxes.');
+        messageEl.setText(this.plugin.i18n.t("hint_enter_in_both_boxes"));
         messageEl.show();
 
         // switch hint text
@@ -400,14 +412,14 @@ class SetPasswordModal extends Modal {
         new Setting(contentEl)
             .addButton((btn) =>
                 btn
-                    .setButtonText("OK")
+                    .setButtonText(this.plugin.i18n.t("ok"))
                     .setCta()
                     .onClick(() => {
                         pwChecker(null);
                     }))
             .addButton((btn) =>
                 btn
-                    .setButtonText("Cancel")
+                    .setButtonText(this.plugin.i18n.t("cancel"))
                     .onClick(() => {
                         cancelEnable(null);
                     }));
@@ -437,25 +449,25 @@ class VerifyPasswordModal extends Modal {
         contentEl.empty();
 
         // title - to let the user know what the modal will do
-        contentEl.createEl("h2", { text: "Verify password" });
+        contentEl.createEl("h2", { text: this.plugin.i18n.t("verify_password") });
 
         // make a div for user's password input
         const inputPwContainerEl = contentEl.createDiv();
         inputPwContainerEl.style.marginBottom = '1em';
         const pwInputEl = inputPwContainerEl.createEl('input', { type: 'password', value: '' });
-        pwInputEl.placeholder = 'Enter your password';
+        pwInputEl.placeholder = this.plugin.i18n.t("enter_password");
         pwInputEl.style.width = '70%';
         pwInputEl.focus();
 
         //message modal - to fire if either input is empty
         const messageEl = contentEl.createDiv();
         messageEl.style.marginBottom = '1em';
-        messageEl.setText('Please enter your password to verify.');
+        messageEl.setText(this.plugin.i18n.t("enter_password_to_verify"));
         messageEl.show();
 
         pwInputEl.addEventListener('input', (event) => {
             messageEl.style.color = '';
-            messageEl.setText('Please enter your password to verify.');
+            messageEl.setText(this.plugin.i18n.t("enter_password_to_verify"));
         });
 
         // check the confirm input
@@ -463,14 +475,14 @@ class VerifyPasswordModal extends Modal {
             // is either input and confirm field empty?
             if (pwInputEl.value == '' || pwInputEl.value == null) {
                 messageEl.style.color = 'red';
-                messageEl.setText('Password is empty.');
+                messageEl.setText(this.plugin.i18n.t("password_is_empty"));
                 return false;
             }
 
             // is password invalid?
             if (typeof (pwInputEl.value) !== 'string' || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
                 messageEl.style.color = 'red';
-                messageEl.setText('Password isn\'t match.');
+                messageEl.setText(this.plugin.i18n.t("password_not_match"));
                 return false;
             }
 
@@ -482,12 +494,12 @@ class VerifyPasswordModal extends Modal {
             // do both password inputs match?
             if (password !== decryptedText) {
                 messageEl.style.color = 'red';
-                messageEl.setText('Password isn\'t match.');
+                messageEl.setText(this.plugin.i18n.t("password_not_match"));
                 return false;
             }
 
             messageEl.style.color = '';
-            messageEl.setText('Password is right.');
+            messageEl.setText(this.plugin.i18n.t("password_is_right"));
             return true;
         }
 
@@ -518,14 +530,14 @@ class VerifyPasswordModal extends Modal {
         new Setting(contentEl)
             .addButton((btn) =>
                 btn
-                    .setButtonText("OK")
+                    .setButtonText(this.plugin.i18n.t("ok"))
                     .setCta()
                     .onClick(() => {
                         pwChecker(null);
                     }))
             .addButton((btn) =>
                 btn
-                    .setButtonText("Cancel")
+                    .setButtonText(this.plugin.i18n.t("cancel"))
                     .onClick(() => {
                         cancelEnable(null);
                     }));
