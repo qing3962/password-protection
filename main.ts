@@ -27,6 +27,10 @@ export default class PasswordPlugin extends Plugin {
     passwordRibbonBtn: HTMLElement;
     i18n: I18n;
 
+    t = (x: TransItemType, vars?: any) => {
+        return this.i18n.t(x, vars);
+    };
+
     async onload() {
         await this.loadSettings();
 
@@ -35,17 +39,14 @@ export default class PasswordPlugin extends Plugin {
             this.settings.lang = lang;
             await this.saveSettings();
         });
-        const t = (x: TransItemType, vars?: any) => {
-            return this.i18n.t(x, vars);
-        };
 
         // This creates an icon in the left ribbon.
         if (this.settings.protectEnabled) {
-            this.passwordRibbonBtn = this.addRibbonIcon('unlock', t("close_password_protection"), (evt: MouseEvent) => {
+            this.passwordRibbonBtn = this.addRibbonIcon('unlock', this.t("close_password_protection"), (evt: MouseEvent) => {
                 this.switchPasswordProtection();
             });
         } else {
-            this.passwordRibbonBtn = this.addRibbonIcon('lock', t("open_password_protection"), (evt: MouseEvent) => {
+            this.passwordRibbonBtn = this.addRibbonIcon('lock', this.t("open_password_protection"), (evt: MouseEvent) => {
                 this.switchPasswordProtection();
             });
         }
@@ -53,7 +54,7 @@ export default class PasswordPlugin extends Plugin {
         // This adds a simple command that can be triggered anywhere
         this.addCommand({
             id: 'Open password protection',
-            name: t("open"),
+            name: this.t("open"),
             callback: () => {
                 this.openPasswordProtection();
             }
@@ -141,15 +142,15 @@ export default class PasswordPlugin extends Plugin {
     // open password protection
     openPasswordProtection() {
         if (!this.settings.protectEnabled) {
-            new Notice(this.i18n.t("notice_set_password"));
+            new Notice(this.t("notice_set_password"));
         } else {
             if (this.isVerifyPasswordCorrect) {
                 this.isVerifyPasswordCorrect = false;
             }
             this.closeLeaves(null);
             setIcon(this.passwordRibbonBtn, "unlock");
-            this.passwordRibbonBtn.ariaLabel = this.i18n.t("close_password_protection");
-            new Notice(this.i18n.t("password_protection_opened"));
+            this.passwordRibbonBtn.ariaLabel = this.t("close_password_protection");
+            new Notice(this.t("password_protection_opened"));
         }
     }
 
@@ -157,7 +158,7 @@ export default class PasswordPlugin extends Plugin {
     closePasswordProtection(file: TFile | null) {
         if (!this.settings.protectEnabled) {
             setIcon(this.passwordRibbonBtn, "lock");
-            this.passwordRibbonBtn.ariaLabel = this.i18n.t("open_password_protection");
+            this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
         } else {
             if (!this.isVerifyPasswordCorrect) {
                 if (!this.isVerifyPasswordWaitting) {
@@ -167,8 +168,8 @@ export default class PasswordPlugin extends Plugin {
                                 this.openLeave(file);
                             }
                             setIcon(this.passwordRibbonBtn, "lock");
-                            this.passwordRibbonBtn.ariaLabel = this.i18n.t("open_password_protection");
-                            new Notice(this.i18n.t("password_protection_closed"));
+                            this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
+                            new Notice(this.t("password_protection_closed"));
                         }
                     }).open();
                 }
@@ -253,10 +254,10 @@ class PasswordSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         new Setting(containerEl)
-            .setName(this.plugin.i18n.t("setting_folder_name"))
-            .setDesc(this.plugin.i18n.t("setting_folder_desc"))
+            .setName(this.plugin.t("setting_folder_name"))
+            .setDesc(this.plugin.t("setting_folder_desc"))
             .addText(text => text
-                .setPlaceholder(this.plugin.i18n.t("place_holder_enter_path"))
+                .setPlaceholder(this.plugin.t("place_holder_enter_path"))
                 .setValue(this.plugin.settings.protectedPath)
                 .onChange(async (value) => {
                     let path = normalizePath(value);
@@ -268,8 +269,8 @@ class PasswordSettingTab extends PluginSettingTab {
             .setDisabled(this.plugin.settings.protectEnabled);
 
         new Setting(containerEl)
-            .setName(this.plugin.i18n.t("setting_toggle_name"))
-            .setDesc(this.plugin.i18n.t("setting_toggle_desc"))
+            .setName(this.plugin.t("setting_toggle_name"))
+            .setDesc(this.plugin.t("setting_toggle_desc"))
             .addToggle((toggle) =>
                 toggle
                     .setValue(this.plugin.settings.protectEnabled)
@@ -315,18 +316,18 @@ class SetPasswordModal extends Modal {
         contentEl.empty();
 
         const inputHint = [
-            this.plugin.i18n.t("hint_enter_in_both_boxes"),
-            this.plugin.i18n.t("hint_password_must_match"),
-            this.plugin.i18n.t("hint_password_length"),
-            this.plugin.i18n.t("hint_password_valid_character")];
+            this.plugin.t("hint_enter_in_both_boxes"),
+            this.plugin.t("hint_password_must_match"),
+            this.plugin.t("hint_password_length"),
+            this.plugin.t("hint_password_valid_character")];
 
-        contentEl.createEl("h2", { text: this.plugin.i18n.t("set_password_title") });
+        contentEl.createEl("h2", { text: this.plugin.t("set_password_title") });
 
         // make a div for user's password input
         const inputPwContainerEl = contentEl.createDiv();
         inputPwContainerEl.style.marginBottom = '1em';
         const pwInputEl = inputPwContainerEl.createEl('input', { type: 'password', value: '' });
-        pwInputEl.placeholder = this.plugin.i18n.t("place_holder_enter_password");
+        pwInputEl.placeholder = this.plugin.t("place_holder_enter_password");
         pwInputEl.style.width = '70%';
         pwInputEl.focus();
 
@@ -334,13 +335,13 @@ class SetPasswordModal extends Modal {
         const confirmPwContainerEl = contentEl.createDiv();
         confirmPwContainerEl.style.marginBottom = '1em';
         const pwConfirmEl = confirmPwContainerEl.createEl('input', { type: 'password', value: '' });
-        pwConfirmEl.placeholder = this.plugin.i18n.t("confirm_password");
+        pwConfirmEl.placeholder = this.plugin.t("confirm_password");
         pwConfirmEl.style.width = '70%';
 
         //message modal - to fire if either input is empty
         const messageEl = contentEl.createDiv();
         messageEl.style.marginBottom = '1em';
-        messageEl.setText(this.plugin.i18n.t("hint_enter_in_both_boxes"));
+        messageEl.setText(this.plugin.t("hint_enter_in_both_boxes"));
         messageEl.show();
 
         // switch hint text
@@ -412,14 +413,14 @@ class SetPasswordModal extends Modal {
         new Setting(contentEl)
             .addButton((btn) =>
                 btn
-                    .setButtonText(this.plugin.i18n.t("ok"))
+                    .setButtonText(this.plugin.t("ok"))
                     .setCta()
                     .onClick(() => {
                         pwChecker(null);
                     }))
             .addButton((btn) =>
                 btn
-                    .setButtonText(this.plugin.i18n.t("cancel"))
+                    .setButtonText(this.plugin.t("cancel"))
                     .onClick(() => {
                         cancelEnable(null);
                     }));
@@ -449,25 +450,25 @@ class VerifyPasswordModal extends Modal {
         contentEl.empty();
 
         // title - to let the user know what the modal will do
-        contentEl.createEl("h2", { text: this.plugin.i18n.t("verify_password") });
+        contentEl.createEl("h2", { text: this.plugin.t("verify_password") });
 
         // make a div for user's password input
         const inputPwContainerEl = contentEl.createDiv();
         inputPwContainerEl.style.marginBottom = '1em';
         const pwInputEl = inputPwContainerEl.createEl('input', { type: 'password', value: '' });
-        pwInputEl.placeholder = this.plugin.i18n.t("enter_password");
+        pwInputEl.placeholder = this.plugin.t("enter_password");
         pwInputEl.style.width = '70%';
         pwInputEl.focus();
 
         //message modal - to fire if either input is empty
         const messageEl = contentEl.createDiv();
         messageEl.style.marginBottom = '1em';
-        messageEl.setText(this.plugin.i18n.t("enter_password_to_verify"));
+        messageEl.setText(this.plugin.t("enter_password_to_verify"));
         messageEl.show();
 
         pwInputEl.addEventListener('input', (event) => {
             messageEl.style.color = '';
-            messageEl.setText(this.plugin.i18n.t("enter_password_to_verify"));
+            messageEl.setText(this.plugin.t("enter_password_to_verify"));
         });
 
         // check the confirm input
@@ -475,14 +476,14 @@ class VerifyPasswordModal extends Modal {
             // is either input and confirm field empty?
             if (pwInputEl.value == '' || pwInputEl.value == null) {
                 messageEl.style.color = 'red';
-                messageEl.setText(this.plugin.i18n.t("password_is_empty"));
+                messageEl.setText(this.plugin.t("password_is_empty"));
                 return false;
             }
 
             // is password invalid?
             if (typeof (pwInputEl.value) !== 'string' || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
                 messageEl.style.color = 'red';
-                messageEl.setText(this.plugin.i18n.t("password_not_match"));
+                messageEl.setText(this.plugin.t("password_not_match"));
                 return false;
             }
 
@@ -494,12 +495,12 @@ class VerifyPasswordModal extends Modal {
             // do both password inputs match?
             if (password !== decryptedText) {
                 messageEl.style.color = 'red';
-                messageEl.setText(this.plugin.i18n.t("password_not_match"));
+                messageEl.setText(this.plugin.t("password_not_match"));
                 return false;
             }
 
             messageEl.style.color = '';
-            messageEl.setText(this.plugin.i18n.t("password_is_right"));
+            messageEl.setText(this.plugin.t("password_is_right"));
             return true;
         }
 
@@ -530,14 +531,14 @@ class VerifyPasswordModal extends Modal {
         new Setting(contentEl)
             .addButton((btn) =>
                 btn
-                    .setButtonText(this.plugin.i18n.t("ok"))
+                    .setButtonText(this.plugin.t("ok"))
                     .setCta()
                     .onClick(() => {
                         pwChecker(null);
                     }))
             .addButton((btn) =>
                 btn
-                    .setButtonText(this.plugin.i18n.t("cancel"))
+                    .setButtonText(this.plugin.t("cancel"))
                     .onClick(() => {
                         cancelEnable(null);
                     }));
