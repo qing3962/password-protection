@@ -633,6 +633,9 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
     super(...arguments);
     this.isVerifyPasswordWaitting = false;
     this.isVerifyPasswordCorrect = false;
+    this.t = (x, vars) => {
+      return this.i18n.t(x, vars);
+    };
   }
   async onload() {
     await this.loadSettings();
@@ -640,21 +643,18 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       this.settings.lang = lang;
       await this.saveSettings();
     });
-    const t = (x, vars) => {
-      return this.i18n.t(x, vars);
-    };
     if (this.settings.protectEnabled) {
-      this.passwordRibbonBtn = this.addRibbonIcon("unlock", t("close_password_protection"), (evt) => {
+      this.passwordRibbonBtn = this.addRibbonIcon("unlock", this.t("close_password_protection"), (evt) => {
         this.switchPasswordProtection();
       });
     } else {
-      this.passwordRibbonBtn = this.addRibbonIcon("lock", t("open_password_protection"), (evt) => {
+      this.passwordRibbonBtn = this.addRibbonIcon("lock", this.t("open_password_protection"), (evt) => {
         this.switchPasswordProtection();
       });
     }
     this.addCommand({
       id: "Open password protection",
-      name: t("open"),
+      name: this.t("open"),
       callback: () => {
         this.openPasswordProtection();
       }
@@ -725,22 +725,22 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   // open password protection
   openPasswordProtection() {
     if (!this.settings.protectEnabled) {
-      new import_obsidian2.Notice(this.i18n.t("notice_set_password"));
+      new import_obsidian2.Notice(this.t("notice_set_password"));
     } else {
       if (this.isVerifyPasswordCorrect) {
         this.isVerifyPasswordCorrect = false;
       }
       this.closeLeaves(null);
       (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "unlock");
-      this.passwordRibbonBtn.ariaLabel = this.i18n.t("close_password_protection");
-      new import_obsidian2.Notice(this.i18n.t("password_protection_opened"));
+      this.passwordRibbonBtn.ariaLabel = this.t("close_password_protection");
+      new import_obsidian2.Notice(this.t("password_protection_opened"));
     }
   }
   // close password protection
   closePasswordProtection(file) {
     if (!this.settings.protectEnabled) {
       (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
-      this.passwordRibbonBtn.ariaLabel = this.i18n.t("open_password_protection");
+      this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
     } else {
       if (!this.isVerifyPasswordCorrect) {
         if (!this.isVerifyPasswordWaitting) {
@@ -750,8 +750,8 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
                 this.openLeave(file);
               }
               (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
-              this.passwordRibbonBtn.ariaLabel = this.i18n.t("open_password_protection");
-              new import_obsidian2.Notice(this.i18n.t("password_protection_closed"));
+              this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
+              new import_obsidian2.Notice(this.t("password_protection_closed"));
             }
           }).open();
         }
@@ -820,14 +820,14 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    new import_obsidian2.Setting(containerEl).setName(this.plugin.i18n.t("setting_folder_name")).setDesc(this.plugin.i18n.t("setting_folder_desc")).addText((text) => text.setPlaceholder(this.plugin.i18n.t("place_holder_enter_path")).setValue(this.plugin.settings.protectedPath).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName(this.plugin.t("setting_folder_name")).setDesc(this.plugin.t("setting_folder_desc")).addText((text) => text.setPlaceholder(this.plugin.t("place_holder_enter_path")).setValue(this.plugin.settings.protectedPath).onChange(async (value) => {
       let path = (0, import_obsidian2.normalizePath)(value);
       if (path != ROOT_PATH) {
         path = ROOT_PATH + path + "/";
       }
       this.plugin.settings.protectedPath = path;
     })).setDisabled(this.plugin.settings.protectEnabled);
-    new import_obsidian2.Setting(containerEl).setName(this.plugin.i18n.t("setting_toggle_name")).setDesc(this.plugin.i18n.t("setting_toggle_desc")).addToggle(
+    new import_obsidian2.Setting(containerEl).setName(this.plugin.t("setting_toggle_name")).setDesc(this.plugin.t("setting_toggle_desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.protectEnabled).onChange((value) => {
         if (value) {
           this.plugin.settings.protectEnabled = false;
@@ -864,26 +864,26 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
     const { contentEl } = this;
     contentEl.empty();
     const inputHint = [
-      this.plugin.i18n.t("hint_enter_in_both_boxes"),
-      this.plugin.i18n.t("hint_password_must_match"),
-      this.plugin.i18n.t("hint_password_length"),
-      this.plugin.i18n.t("hint_password_valid_character")
+      this.plugin.t("hint_enter_in_both_boxes"),
+      this.plugin.t("hint_password_must_match"),
+      this.plugin.t("hint_password_length"),
+      this.plugin.t("hint_password_valid_character")
     ];
-    contentEl.createEl("h2", { text: this.plugin.i18n.t("set_password_title") });
+    contentEl.createEl("h2", { text: this.plugin.t("set_password_title") });
     const inputPwContainerEl = contentEl.createDiv();
     inputPwContainerEl.style.marginBottom = "1em";
     const pwInputEl = inputPwContainerEl.createEl("input", { type: "password", value: "" });
-    pwInputEl.placeholder = this.plugin.i18n.t("place_holder_enter_password");
+    pwInputEl.placeholder = this.plugin.t("place_holder_enter_password");
     pwInputEl.style.width = "70%";
     pwInputEl.focus();
     const confirmPwContainerEl = contentEl.createDiv();
     confirmPwContainerEl.style.marginBottom = "1em";
     const pwConfirmEl = confirmPwContainerEl.createEl("input", { type: "password", value: "" });
-    pwConfirmEl.placeholder = this.plugin.i18n.t("confirm_password");
+    pwConfirmEl.placeholder = this.plugin.t("confirm_password");
     pwConfirmEl.style.width = "70%";
     const messageEl = contentEl.createDiv();
     messageEl.style.marginBottom = "1em";
-    messageEl.setText(this.plugin.i18n.t("hint_enter_in_both_boxes"));
+    messageEl.setText(this.plugin.t("hint_enter_in_both_boxes"));
     messageEl.show();
     const switchHint = (color, index) => {
       messageEl.style.color = color;
@@ -921,6 +921,7 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       }
       let password = pwInputEl.value.normalize("NFC");
       const encryptedText = this.plugin.encrypt(password, ENCRYPT_KEY);
+      console.log(`Encrypted text: ${encryptedText}`);
       this.plugin.settings.password = encryptedText;
       this.plugin.settings.protectEnabled = true;
       this.close();
@@ -931,9 +932,9 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       }
       this.close();
     };
-    new import_obsidian2.Setting(contentEl).addButton((btn) => btn.setButtonText(this.plugin.i18n.t("ok")).setCta().onClick(() => {
+    new import_obsidian2.Setting(contentEl).addButton((btn) => btn.setButtonText(this.plugin.t("ok")).setCta().onClick(() => {
       pwChecker(null);
-    })).addButton((btn) => btn.setButtonText(this.plugin.i18n.t("cancel")).onClick(() => {
+    })).addButton((btn) => btn.setButtonText(this.plugin.t("cancel")).onClick(() => {
       cancelEnable(null);
     }));
   }
@@ -954,41 +955,41 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.createEl("h2", { text: this.plugin.i18n.t("verify_password") });
+    contentEl.createEl("h2", { text: this.plugin.t("verify_password") });
     const inputPwContainerEl = contentEl.createDiv();
     inputPwContainerEl.style.marginBottom = "1em";
     const pwInputEl = inputPwContainerEl.createEl("input", { type: "password", value: "" });
-    pwInputEl.placeholder = this.plugin.i18n.t("enter_password");
+    pwInputEl.placeholder = this.plugin.t("enter_password");
     pwInputEl.style.width = "70%";
     pwInputEl.focus();
     const messageEl = contentEl.createDiv();
     messageEl.style.marginBottom = "1em";
-    messageEl.setText(this.plugin.i18n.t("enter_password_to_verify"));
+    messageEl.setText(this.plugin.t("enter_password_to_verify"));
     messageEl.show();
     pwInputEl.addEventListener("input", (event) => {
       messageEl.style.color = "";
-      messageEl.setText(this.plugin.i18n.t("enter_password_to_verify"));
+      messageEl.setText(this.plugin.t("enter_password_to_verify"));
     });
     const pwConfirmChecker = () => {
       if (pwInputEl.value == "" || pwInputEl.value == null) {
         messageEl.style.color = "red";
-        messageEl.setText(this.plugin.i18n.t("password_is_empty"));
+        messageEl.setText(this.plugin.t("password_is_empty"));
         return false;
       }
       if (typeof pwInputEl.value !== "string" || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
         messageEl.style.color = "red";
-        messageEl.setText(this.plugin.i18n.t("password_not_match"));
+        messageEl.setText(this.plugin.t("password_not_match"));
         return false;
       }
       let password = pwInputEl.value.normalize("NFC");
       const decryptedText = this.plugin.decrypt(this.plugin.settings.password, ENCRYPT_KEY);
       if (password !== decryptedText) {
         messageEl.style.color = "red";
-        messageEl.setText(this.plugin.i18n.t("password_not_match"));
+        messageEl.setText(this.plugin.t("password_not_match"));
         return false;
       }
       messageEl.style.color = "";
-      messageEl.setText(this.plugin.i18n.t("password_is_right"));
+      messageEl.setText(this.plugin.t("password_is_right"));
       return true;
     };
     const pwChecker = (ev) => {
@@ -1008,17 +1009,19 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       }
       this.close();
     };
-    new import_obsidian2.Setting(contentEl).addButton((btn) => btn.setButtonText(this.plugin.i18n.t("ok")).setCta().onClick(() => {
+    new import_obsidian2.Setting(contentEl).addButton((btn) => btn.setButtonText(this.plugin.t("ok")).setCta().onClick(() => {
       pwChecker(null);
-    })).addButton((btn) => btn.setButtonText(this.plugin.i18n.t("cancel")).onClick(() => {
-      cancelEnable(null);
     }));
   }
   onClose() {
     this.plugin.isVerifyPasswordWaitting = false;
     const { contentEl } = this;
     contentEl.empty();
-    this.onSubmit();
+    if (!this.plugin.isVerifyPasswordCorrect) {
+      const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
+    } else {
+      this.onSubmit();
+    }
   }
 };
 /*! Bundled license information:

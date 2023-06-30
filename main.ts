@@ -395,6 +395,7 @@ class SetPasswordModal extends Modal {
             //deal with accents - normalize Unicode
             let password = pwInputEl.value.normalize('NFC');
             const encryptedText = this.plugin.encrypt(password, ENCRYPT_KEY);
+            console.log(`Encrypted text: ${encryptedText}`);
 
             // if all checks pass, save to settings
             this.plugin.settings.password = encryptedText;
@@ -535,12 +536,6 @@ class VerifyPasswordModal extends Modal {
                     .setCta()
                     .onClick(() => {
                         pwChecker(null);
-                    }))
-            .addButton((btn) =>
-                btn
-                    .setButtonText(this.plugin.t("cancel"))
-                    .onClick(() => {
-                        cancelEnable(null);
                     }));
     }
 
@@ -548,6 +543,10 @@ class VerifyPasswordModal extends Modal {
         this.plugin.isVerifyPasswordWaitting = false;
         const { contentEl } = this;
         contentEl.empty();
-        this.onSubmit();
+        if (!this.plugin.isVerifyPasswordCorrect) {
+            const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
+        } else {
+            this.onSubmit();
+        }
     }
 }
