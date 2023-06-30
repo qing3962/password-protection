@@ -20,7 +20,7 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 
 ## Installation, Configruation, and Usage
 
-1. Download the latest release zip of the Password Protection plugin from the [website](https://github.com/qing3962/password-protection/releases).
+1. Download the latest release: password-protection-1.x.x.zip, this package in cross-platform have been tested in Windows and iOS; [Download](https://github.com/qing3962/password-protection/releases).
 
 2. Open the folder for community plugins of Obsidian, usually locate in .obsidian/plugins of the your vault folder.
 
@@ -62,7 +62,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 安装、配置和使用
 
-1. 下载这个插件的最新 Release 版本 zip 包； [下载地址](https://github.com/qing3962/password-protection/releases)
+1. 下载这个插件的最新 Release 版本: password-protection-1.x.x.zip，这个包可以跨平台使用，已经在 Windows 和 iOS 上完成测试； [下载地址](https://github.com/qing3962/password-protection/releases)
 
 2. 找到你的 Obsidian 配置文件夹的插件文件夹：plugins，一般在你的笔记库所在的目录：.obsidian/plugins；
 
