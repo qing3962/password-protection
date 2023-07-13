@@ -411,6 +411,20 @@ class SetPasswordModal extends Modal {
             this.close();
         }
 
+        // Press enter key to jump to next editbox.
+        pwInputEl.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                pwConfirmEl.focus();
+            }
+        });
+
+        // Press enter key to set password.
+        pwConfirmEl.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                pwChecker(null);
+            }
+        });
+
         new Setting(contentEl)
             .addButton((btn) =>
                 btn
@@ -521,13 +535,12 @@ class VerifyPasswordModal extends Modal {
             this.close();
         }
 
-        // cancel the modal
-        const cancelEnable = (ev: Event | null) => {
-            if (ev != null) {
-                ev.preventDefault();
+        // Press enter key to verify password.
+        pwInputEl.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                pwChecker(null);
             }
-            this.close();
-        }
+        });
 
         new Setting(contentEl)
             .addButton((btn) =>
