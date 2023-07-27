@@ -528,7 +528,7 @@ var en_default = {
 var zh_cn_default = {
   ok: "\u786E\u5B9A",
   cancel: "\u53D6\u6D88",
-  open: "\u6253\u5F00",
+  open: "\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4",
   close_password_protection: "\u5173\u95ED\u5BC6\u7801\u4FDD\u62A4",
   open_password_protection: "\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4",
   password_protection_opened: "\u5BC6\u7801\u4FDD\u62A4\u5DF2\u6253\u5F00",
@@ -558,7 +558,7 @@ var zh_cn_default = {
 var zh_tw_default = {
   ok: "\u78BA\u8A8D",
   cancel: "\u53D6\u6D88",
-  open: "\u6253\u958B",
+  open: "\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77",
   close_password_protection: "\u95DC\u9589\u5BC6\u78BC\u4FDD\u8B77",
   open_password_protection: "\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77",
   password_protection_opened: "\u5BC6\u78BC\u4FDD\u8B77\u5DF2\u6253\u958B",
@@ -620,6 +620,8 @@ var I18n = class {
 };
 
 // main.ts
+var PASSWORD_LENGTH_MIN = 1;
+var PASSWORD_LENGTH_MAX = 20;
 var ENCRYPT_KEY = 30;
 var ROOT_PATH = (0, import_obsidian2.normalizePath)("/");
 var DEFAULT_SETTINGS = {
@@ -900,7 +902,7 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
         switchHint("red", 0);
         return false;
       }
-      if (typeof pwInputEl.value !== "string" || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
+      if (typeof pwInputEl.value !== "string" || pwInputEl.value.length < PASSWORD_LENGTH_MIN || pwInputEl.value.length > PASSWORD_LENGTH_MAX) {
         switchHint("red", 2);
         return false;
       }
@@ -932,6 +934,16 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       }
       this.close();
     };
+    pwInputEl.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        pwConfirmEl.focus();
+      }
+    });
+    pwConfirmEl.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        pwChecker(null);
+      }
+    });
     new import_obsidian2.Setting(contentEl).addButton((btn) => btn.setButtonText(this.plugin.t("ok")).setCta().onClick(() => {
       pwChecker(null);
     })).addButton((btn) => btn.setButtonText(this.plugin.t("cancel")).onClick(() => {
@@ -976,7 +988,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
         messageEl.setText(this.plugin.t("password_is_empty"));
         return false;
       }
-      if (typeof pwInputEl.value !== "string" || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
+      if (typeof pwInputEl.value !== "string" || pwInputEl.value.length < PASSWORD_LENGTH_MIN || pwInputEl.value.length > PASSWORD_LENGTH_MAX) {
         messageEl.style.color = "red";
         messageEl.setText(this.plugin.t("password_not_match"));
         return false;
@@ -1003,12 +1015,11 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       this.plugin.isVerifyPasswordCorrect = true;
       this.close();
     };
-    const cancelEnable = (ev) => {
-      if (ev != null) {
-        ev.preventDefault();
+    pwInputEl.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        pwChecker(null);
       }
-      this.close();
-    };
+    });
     new import_obsidian2.Setting(contentEl).addButton((btn) => btn.setButtonText(this.plugin.t("ok")).setCta().onClick(() => {
       pwChecker(null);
     }));

@@ -1,7 +1,7 @@
 {
   "ok": "确定",
   "cancel": "取消",
-  "open": "打开",
+  "open": "打开密码保护",
 
   "close_password_protection": "关闭密码保护",
   "open_password_protection": "打开密码保护",

@@ -2,6 +2,8 @@ import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, T
 import { I18n } from "./i18n";
 import type { LangType, LangTypeAndAuto, TransItemType } from "./i18n";
 
+const PASSWORD_LENGTH_MIN = 1;
+const PASSWORD_LENGTH_MAX = 20;
 const ENCRYPT_KEY = 30;
 const ROOT_PATH = normalizePath("/");
 
@@ -367,7 +369,7 @@ class SetPasswordModal extends Modal {
             }
 
             // is password invalid?
-            if (typeof (pwInputEl.value) !== 'string' || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
+            if (typeof (pwInputEl.value) !== 'string' || pwInputEl.value.length < PASSWORD_LENGTH_MIN || pwInputEl.value.length > PASSWORD_LENGTH_MAX) {
                 switchHint('red', 2);
                 return false;
             }
@@ -496,7 +498,7 @@ class VerifyPasswordModal extends Modal {
             }
 
             // is password invalid?
-            if (typeof (pwInputEl.value) !== 'string' || pwInputEl.value.length < 6 || pwInputEl.value.length > 20) {
+            if (typeof (pwInputEl.value) !== 'string' || pwInputEl.value.length < PASSWORD_LENGTH_MIN || pwInputEl.value.length > PASSWORD_LENGTH_MAX) {
                 messageEl.style.color = 'red';
                 messageEl.setText(this.plugin.t("password_not_match"));
                 return false;
