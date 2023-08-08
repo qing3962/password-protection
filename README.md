@@ -10,15 +10,17 @@ No encrypt, no decrypt, This plugin doesn't modify your notes, it will not do an
 
 When you launch the Obsidian:
 
-If the protected folder you set is the root folder (/), when you launch Obsidian, a password verification box will present, enter the correct password, you can just open a note.  
+If the protected folder you set is the root folder (/), a password verification box will present, enter the correct password, you can just open a note.  
 
 If the protected folder you set is a sub-folder (/xxx), when you open a note that located in the sub-folder, a password verification box will pop up, enter the correct password, you can open the note.  
 
 Once you have entered the correct password, you will not be asked to enter it again when opening other protected notes.  
 
-If you want to turn on protection again, you may invoke the command panel, type "pass", find the command - Password Protection: Open, run it, when you open a protected note, the password verification box will pop up again.  
+If you want to turn on protection again, you may invoke the command panel, type "pass", find the command - "Password Protection: Open", run it, when you open a protected note, the password verification box will pop up again.  
 
 In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.  
+
+Note: Once the password prompt modal is opened, it will not be able to be closed until you enter correct password. Because I don't want someone who doesn't know the password to be able to go on, otherwise the guys will see the tree of directory and title of the notes.
 
 ## The systems have been tested:
 
@@ -58,15 +60,17 @@ This project is licensed under the [MIT License](LICENSE).
 
 当你每次启动 Obsidian:
 
-如果你设置的受保护路径是根路径（/），当你启动 Obsidian，你将会看到一个密码验证框，只有输入正确的密码，你才能打开任何一篇笔记。  
+如果你设置的受保护路径是根路径（/），你将会看到一个密码验证框，只有输入正确的密码，你才能打开任何一篇笔记。  
 
 如果你设置的受保护路径是子路径（/xxx），当你要打开的笔记位于这个子路径，就会弹出一个密码验证框，只有输入正确的密码，你才能继续打开这篇笔记。  
 
 一旦输入过一次正确的密码，那么再打开其他受保护的笔记时，不会要求再次输入。  
 
-如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令 - Password Protection: Open，执行它，那么再要打开受保护的笔记，会再次弹出密码验证框。  
+如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令 - "Password Protection: 打开密码保护"，执行它，那么再要打开受保护的笔记，会再次弹出密码验证框。  
 
 在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。  
+
+注意：密码验证框被打开后，除非输入正确的密码否则不能被关闭。因为我不想不知道密码的人能够继续，如果能关闭，就能看到所有笔记的标题和目录树。
 
 ## 已测试的系统
 
