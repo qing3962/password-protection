@@ -95,7 +95,7 @@ export default class PasswordPlugin extends Plugin {
     async openLeave(file: TFile | null) {
         let leaf = this.app.workspace.getLeaf(false);
         if (leaf != null && file != null) {
-            leaf.openFile(file);
+            leaf.openFile(file as TFile);
         }
     }
 
@@ -463,9 +463,9 @@ class VerifyPasswordModal extends Modal {
     }
 
     onOpen() {
-        //const { modalEl } = this;
-        //const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
-        //closeButton.setAttribute('style', 'display: none;');
+        const { modalEl } = this;
+        const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+        closeButton.setAttribute('style', 'display: none;');
 
         const { contentEl } = this;
         contentEl.empty();
