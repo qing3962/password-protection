@@ -671,9 +671,11 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       }
     });
     this.registerEvent(this.app.workspace.on("file-open", (file) => {
-      if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-        this.closeLeave(file);
-        this.closePasswordProtection(file);
+      if (file != null) {
+        if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
+          this.closeLeave(file);
+          this.closePasswordProtection(file);
+        }
       }
     }));
   }

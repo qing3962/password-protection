@@ -76,11 +76,13 @@ export default class PasswordPlugin extends Plugin {
         });
 
         // when the file opened, check if it need to be protected, if so, close it, and show the password dialog
-        this.registerEvent(this.app.workspace.on('file-open', (file: TFile) => {
-            if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-                // firstly close the file, then show the password dialog
-                this.closeLeave(file);
-                this.closePasswordProtection(file);
+        this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
+            if (file != null) {
+                if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file as TFile)) {
+                    // firstly close the file, then show the password dialog
+                    this.closeLeave(file as TFile);
+                    this.closePasswordProtection(file as TFile);
+                }
             }
         }));
     }
