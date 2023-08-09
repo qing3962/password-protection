@@ -511,10 +511,10 @@ var en_default = {
   setting_toggle_desc: "Enable the protection need you to set password, Disable need to verify your password.",
   hint_enter_in_both_boxes: "Please enter your password in both boxes.",
   hint_password_must_match: "Passwords must match.",
-  hint_password_length: "Password must be valid characters and contains 6~20 characters.",
+  hint_password_length: "Password must be valid characters and contains 1~20 characters.",
   hint_password_valid_character: "Password is valid characters.",
   set_password_title: "Set a password to protect a folder",
-  place_holder_enter_password: "Enter password, 6~20 characters",
+  place_holder_enter_password: "Enter password, 1~20 characters",
   confirm_password: "Confirm your password",
   verify_password: "Verify password",
   enter_password: "Enter your password",
@@ -541,10 +541,10 @@ var zh_cn_default = {
   setting_toggle_desc: "\u5F00\u542F\u4FDD\u62A4\u9700\u8981\u8BBE\u7F6E\u5BC6\u7801\uFF0C\u5173\u95ED\u4FDD\u62A4\u9700\u8981\u9A8C\u8BC1\u5BC6\u7801",
   hint_enter_in_both_boxes: "\u8BF7\u5728\u4E24\u4E2A\u8F93\u5165\u6846\u4E2D\u90FD\u8F93\u5165\u5BC6\u7801",
   hint_password_must_match: "\u8BF7\u5728\u4E24\u4E2A\u8F93\u5165\u6846\u4E2D\u8F93\u5165\u4E00\u6837\u7684\u5BC6\u7801",
-  hint_password_length: "\u5BC6\u7801\u5FC5\u987B\u662F\u6709\u6548\u5B57\u7B26\uFF0C\u957F\u5EA6 6~20 \u4E2A\u5B57\u7B26",
+  hint_password_length: "\u5BC6\u7801\u5FC5\u987B\u662F\u6709\u6548\u5B57\u7B26\uFF0C\u957F\u5EA6 1~20 \u4E2A\u5B57\u7B26",
   hint_password_valid_character: "\u5BC6\u7801\u5FC5\u987B\u662F\u6709\u6548\u5B57\u7B26",
   set_password_title: "\u8BBE\u7F6E\u5BC6\u7801",
-  place_holder_enter_password: "\u8F93\u5165\u5BC6\u7801, \u957F\u5EA6 6~20 \u4E2A\u5B57\u7B26",
+  place_holder_enter_password: "\u8F93\u5165\u5BC6\u7801, \u957F\u5EA6 1~20 \u4E2A\u5B57\u7B26",
   confirm_password: "\u518D\u6B21\u8F93\u5165\u5BC6\u7801",
   verify_password: "\u9A8C\u8BC1\u5BC6\u7801",
   enter_password: "\u8F93\u5165\u4F60\u7684\u5BC6\u7801",
@@ -571,10 +571,10 @@ var zh_tw_default = {
   setting_toggle_desc: "\u958B\u555F\u4FDD\u8B77\u9700\u8981\u8A2D\u7F6E\u5BC6\u78BC\uFF0C\u95DC\u9589\u4FDD\u8B77\u9700\u8981\u9A57\u8B49\u5BC6\u78BC",
   hint_enter_in_both_boxes: "\u8ACB\u5728\u5169\u500B\u8F38\u5165\u6846\u4E2D\u90FD\u8F38\u5165\u5BC6\u78BC",
   hint_password_must_match: "\u8ACB\u5728\u5169\u500B\u8F38\u5165\u6846\u4E2D\u8F38\u5165\u4E00\u6A23\u7684\u5BC6\u78BC",
-  hint_password_length: "\u5BC6\u78BC\u5FC5\u9808\u662F\u6709\u6548\u5B57\u7B26\uFF0C\u9577\u5EA6 6~20 \u500B\u5B57\u7B26",
+  hint_password_length: "\u5BC6\u78BC\u5FC5\u9808\u662F\u6709\u6548\u5B57\u7B26\uFF0C\u9577\u5EA6 1~20 \u500B\u5B57\u7B26",
   hint_password_valid_character: "\u5BC6\u78BC\u5FC5\u9808\u662F\u6709\u6548\u5B57\u7B26",
   set_password_title: "\u8A2D\u7F6E\u5BC6\u78BC",
-  place_holder_enter_password: "\u8F38\u5165\u5BC6\u78BC\uFF0C\u9577\u5EA6 6~20 \u500B\u5B57\u7B26",
+  place_holder_enter_password: "\u8F38\u5165\u5BC6\u78BC\uFF0C\u9577\u5EA6 1~20 \u500B\u5B57\u7B26",
   confirm_password: "\u518D\u6B21\u8F38\u5165\u5BC6\u78BC",
   verify_password: "\u9A57\u8B49\u5BC6\u78BC",
   enter_password: "\u8F38\u5165\u4F60\u7684\u5BC6\u78BC",
@@ -965,6 +965,11 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
     this.onSubmit = onSubmit;
   }
   onOpen() {
+    const { modalEl } = this;
+    const closeButton = modalEl.getElementsByClassName("modal-close-button")[0];
+    if (closeButton != null) {
+      closeButton.setAttribute("style", "display: none;");
+    }
     const { contentEl } = this;
     contentEl.empty();
     contentEl.createEl("h2", { text: this.plugin.t("verify_password") });

@@ -20,7 +20,7 @@ If you want to turn on protection again, you may invoke the command panel, type 
 
 In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.  
 
-Note: Once the password prompt modal is opened, it will not be able to be closed until you enter correct password. Because I don't want someone who doesn't know the password to be able to go on, otherwise the guys will see the tree of directory and title of the notes.
+Note: Once the password prompt modal is opened, it will not be able to be closed until you enter correct password. Because I don't want someone who doesn't know the password to be able to go on, otherwise the guys will see the tree of directory and title of the notes.  
 
 ## The systems have been tested:
 
@@ -28,6 +28,8 @@ I have tested the plugin on Windows and iOS (iPhone、iPad) with Obsidian in 202
 
 ## Installation, Configruation, and Usage
 
+If you cann't install the plugin from community plugin market, you can step by step follow this:
+ 
 1. Download the latest release: password-protection-1.x.x.zip, this package in cross-platform have been tested in Windows and iOS; [Download](https://github.com/qing3962/password-protection/releases).
 
 2. Open the folder for community plugins of Obsidian, usually locate in .obsidian/plugins of the your vault folder.
@@ -70,7 +72,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。  
 
-注意：密码验证框被打开后，除非输入正确的密码否则不能被关闭。因为我不想不知道密码的人能够继续，如果能关闭，就能看到所有笔记的标题和目录树。
+注意：密码验证框被打开后，除非输入正确的密码否则不能被关闭。因为我不想不知道密码的人能够继续，如果能关闭，就能看到所有笔记的标题和目录树。  
 
 ## 已测试的系统
 
@@ -78,7 +80,10 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 安装、配置和使用
 
-1. 下载这个插件的最新 Release 版本: password-protection-1.x.x.zip，这个包可以跨平台使用，已经在 Windows 和 iOS 上完成测试； [下载地址](https://github.com/qing3962/password-protection/releases)
+如果你不能从社区插件市场安装这个插件，你可以用下面的方法：
+
+1. 下载这个插件的最新 Release 版本: password-protection-1.x.x.zip，这个包可以跨平台使用，已经在 Windows 和 iOS 上完成测试； [GitHub](https://github.com/qing3962/password-protection/releases)  
+[Gitee](https://gitee.com/qing3962/password-protection/)
 
 2. 找到你的 Obsidian 配置文件夹的插件文件夹：plugins，一般在你的笔记库所在的目录：.obsidian/plugins；
 
