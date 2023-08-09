@@ -665,15 +665,15 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
     this.app.workspace.onLayoutReady(() => {
       if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
         if (!this.isVerifyPasswordCorrect) {
-          this.closeLeaves(null);
-          this.closePasswordProtection(null);
+          this.closeLeaves();
+          this.verifyToClosePasswordProtection();
         }
       }
     });
     this.registerEvent(this.app.workspace.on("file-open", (file) => {
       if (file !== null) {
         if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-          this.closeLeaves(file);
+          this.closeLeave(file);
           this.closePasswordProtection(file);
         }
       }
@@ -684,12 +684,12 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   // open note
   async openLeave(file) {
     let leaf = this.app.workspace.getLeaf(false);
-    if (leaf != null && file != null) {
+    if (leaf != null) {
       leaf.openFile(file);
     }
   }
-  // close notes
-  async closeLeaves(file) {
+  // close a note
+  async closeLeave(file) {
     let leaves = [];
     this.app.workspace.iterateAllLeaves((leaf) => {
       leaves.push(leaf);
@@ -700,11 +700,29 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
     for (const leaf of leaves) {
       if (leaf.view instanceof import_obsidian2.FileView) {
         let needClose = false;
-        if (file == null) {
-          needClose = this.isProtectedFile(leaf.view.file);
-        } else if (leaf.view.file.path == file.path) {
+        if (leaf.view.file.path == file.path) {
           needClose = true;
         }
+        if (needClose) {
+          await emptyLeaf(leaf);
+          leaf.detach();
+          break;
+        }
+      }
+    }
+  }
+  // close notes
+  async closeLeaves() {
+    let leaves = [];
+    this.app.workspace.iterateAllLeaves((leaf) => {
+      leaves.push(leaf);
+    });
+    const emptyLeaf = async (leaf) => {
+      leaf.setViewState({ type: "empty" });
+    };
+    for (const leaf of leaves) {
+      if (leaf.view instanceof import_obsidian2.FileView) {
+        let needClose = this.isProtectedFile(leaf.view.file);
         if (needClose) {
           await emptyLeaf(leaf);
           leaf.detach();
@@ -716,7 +734,7 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   switchPasswordProtection() {
     if (this.settings.protectEnabled) {
       if (!this.isVerifyPasswordCorrect) {
-        this.closePasswordProtection(null);
+        this.verifyToClosePasswordProtection();
       } else {
         this.openPasswordProtection();
       }
@@ -732,7 +750,7 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       if (this.isVerifyPasswordCorrect) {
         this.isVerifyPasswordCorrect = false;
       }
-      this.closeLeaves(null);
+      this.closeLeaves();
       (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "unlock");
       this.passwordRibbonBtn.ariaLabel = this.t("close_password_protection");
       new import_obsidian2.Notice(this.t("password_protection_opened"));
@@ -740,29 +758,36 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   }
   // close password protection
   closePasswordProtection(file) {
-    if (!this.settings.protectEnabled) {
-      (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
-      this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
-    } else {
-      if (!this.isVerifyPasswordCorrect) {
-        if (!this.isVerifyPasswordWaitting) {
-          const setModal = new VerifyPasswordModal(this.app, this, () => {
-            if (this.isVerifyPasswordCorrect) {
-              if (file != null) {
-                this.openLeave(file);
-              }
-              (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
-              this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
-              new import_obsidian2.Notice(this.t("password_protection_closed"));
-            }
-          }).open();
+    if (!this.isVerifyPasswordWaitting) {
+      const setModal = new VerifyPasswordModal(this.app, this, () => {
+        if (this.isVerifyPasswordCorrect) {
+          this.openLeave(file);
+          (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
+          this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
+          new import_obsidian2.Notice(this.t("password_protection_closed"));
         }
-      }
+      }).open();
     }
+  }
+  verifyToClosePasswordProtection() {
+    if (!this.isVerifyPasswordWaitting) {
+      const setModal = new VerifyPasswordModal(this.app, this, () => {
+        if (this.isVerifyPasswordCorrect) {
+          (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
+          this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
+          new import_obsidian2.Notice(this.t("password_protection_closed"));
+        }
+      }).open();
+    }
+  }
+  // close password protection
+  disableProtection() {
+    (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
+    this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
   }
   // check if the file need to be protected
   isProtectedFile(file) {
-    if (file == null || file.path == null || file.path == "") {
+    if (file.path == "") {
       return false;
     }
     let path = (0, import_obsidian2.normalizePath)(file.path);
@@ -846,7 +871,7 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
               if (this.plugin.isVerifyPasswordCorrect) {
                 this.plugin.settings.protectEnabled = false;
                 this.plugin.saveSettings();
-                this.plugin.closePasswordProtection(null);
+                this.plugin.disableProtection();
               }
               this.display();
             }).open();

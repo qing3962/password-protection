@@ -69,8 +69,8 @@ export default class PasswordPlugin extends Plugin {
         this.app.workspace.onLayoutReady(() => {
             if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
                 if (!this.isVerifyPasswordCorrect) {
-                    this.closeLeaves(null);
-                    this.closePasswordProtection(null);
+                    this.closeLeaves();
+                    this.verifyToClosePasswordProtection();
                 }
             }
         });
@@ -81,7 +81,7 @@ export default class PasswordPlugin extends Plugin {
             {
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
                     // firstly close the file, then show the password dialog
-                    this.closeLeaves(file);
+                    this.closeLeave(file);
                     this.closePasswordProtection(file);
                 }
             }
@@ -92,15 +92,15 @@ export default class PasswordPlugin extends Plugin {
     }
 
     // open note
-    async openLeave(file: TFile | null) {
+    async openLeave(file: TFile) {
         let leaf = this.app.workspace.getLeaf(false);
-        if (leaf != null && file != null) {
-            leaf.openFile(file as TFile);
+        if (leaf != null) {
+            leaf.openFile(file);
         }
     }
 
-    // close notes
-    async closeLeaves(file: TFile | null) {
+    // close a note
+    async closeLeave(file: TFile) {
         let leaves: WorkspaceLeaf[] = [];
 
         this.app.workspace.iterateAllLeaves((leaf) => {
@@ -114,12 +114,34 @@ export default class PasswordPlugin extends Plugin {
         for (const leaf of leaves) {
             if (leaf.view instanceof FileView) {
                 let needClose = false;
-                if (file == null) {
-                    needClose = this.isProtectedFile(leaf.view.file);
-                } else if (leaf.view.file.path == file.path) {
+                if (leaf.view.file.path == file.path) {
                     needClose = true;
                 }
 
+                if (needClose) {
+                    await emptyLeaf(leaf);
+                    leaf.detach();
+                    break;
+                }
+            }
+        }
+    }
+
+    // close notes
+    async closeLeaves() {
+        let leaves: WorkspaceLeaf[] = [];
+
+        this.app.workspace.iterateAllLeaves((leaf) => {
+            leaves.push(leaf);
+        });
+
+        const emptyLeaf = async (leaf: WorkspaceLeaf): Promise<void> => {
+            leaf.setViewState({ type: 'empty' });
+        }
+
+        for (const leaf of leaves) {
+            if (leaf.view instanceof FileView) {
+                let needClose = this.isProtectedFile(leaf.view.file);
                 if (needClose) {
                     await emptyLeaf(leaf);
                     leaf.detach();
@@ -132,7 +154,7 @@ export default class PasswordPlugin extends Plugin {
     switchPasswordProtection() {
         if (this.settings.protectEnabled) {
             if (!this.isVerifyPasswordCorrect) {
-                this.closePasswordProtection(null);
+                this.verifyToClosePasswordProtection();
             } else {
                 this.openPasswordProtection();
             }
@@ -149,7 +171,7 @@ export default class PasswordPlugin extends Plugin {
             if (this.isVerifyPasswordCorrect) {
                 this.isVerifyPasswordCorrect = false;
             }
-            this.closeLeaves(null);
+            this.closeLeaves();
             setIcon(this.passwordRibbonBtn, "unlock");
             this.passwordRibbonBtn.ariaLabel = this.t("close_password_protection");
             new Notice(this.t("password_protection_opened"));
@@ -157,31 +179,40 @@ export default class PasswordPlugin extends Plugin {
     }
 
     // close password protection
-    closePasswordProtection(file: TFile | null) {
-        if (!this.settings.protectEnabled) {
-            setIcon(this.passwordRibbonBtn, "lock");
-            this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
-        } else {
-            if (!this.isVerifyPasswordCorrect) {
-                if (!this.isVerifyPasswordWaitting) {
-                    const setModal = new VerifyPasswordModal(this.app, this, () => {
-                        if (this.isVerifyPasswordCorrect) {
-                            if (file != null) {
-                                this.openLeave(file);
-                            }
-                            setIcon(this.passwordRibbonBtn, "lock");
-                            this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
-                            new Notice(this.t("password_protection_closed"));
-                        }
-                    }).open();
+    closePasswordProtection(file: TFile) {
+        if (!this.isVerifyPasswordWaitting) {
+            const setModal = new VerifyPasswordModal(this.app, this, () => {
+                if (this.isVerifyPasswordCorrect) {
+                    this.openLeave(file);
+                    setIcon(this.passwordRibbonBtn, "lock");
+                    this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
+                    new Notice(this.t("password_protection_closed"));
                 }
-            }
+            }).open();
         }
+    }
+
+    verifyToClosePasswordProtection() {
+        if (!this.isVerifyPasswordWaitting) {
+            const setModal = new VerifyPasswordModal(this.app, this, () => {
+                if (this.isVerifyPasswordCorrect) {
+                    setIcon(this.passwordRibbonBtn, "lock");
+                    this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
+                    new Notice(this.t("password_protection_closed"));
+                }
+            }).open();
+        }
+    }
+
+    // close password protection
+    disableProtection() {
+        setIcon(this.passwordRibbonBtn, "lock");
+        this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
     }
 
     // check if the file need to be protected
     isProtectedFile(file: TFile): boolean {
-        if (file == null || file.path == null || file.path == "") {
+        if (file.path == "") {
             return false;
         }
         let path = normalizePath(file.path);
@@ -292,7 +323,7 @@ class PasswordSettingTab extends PluginSettingTab {
                                     if (this.plugin.isVerifyPasswordCorrect) {
                                         this.plugin.settings.protectEnabled = false;
                                         this.plugin.saveSettings();
-                                        this.plugin.closePasswordProtection(null);
+                                        this.plugin.disableProtection();
                                     }
                                     this.display();
                                 }).open();
