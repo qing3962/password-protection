@@ -685,7 +685,9 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   // open note
   async openLeave(file) {
     let leaf = this.app.workspace.getLeaf(false);
-    leaf == null ? void 0 : leaf.openFile(file);
+    if (leaf != null) {
+      leaf.openFile(file);
+    }
   }
   // close a note
   async closeLeave(file) {

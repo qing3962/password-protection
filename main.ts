@@ -94,7 +94,9 @@ export default class PasswordPlugin extends Plugin {
     // open note
     async openLeave(file: TFile) {
         let leaf = this.app.workspace.getLeaf(false);
-        leaf?.openFile(file);
+        if (leaf != null) {
+            leaf.openFile(file);
+        }
     }
 
     // close a note
