@@ -463,9 +463,9 @@ class VerifyPasswordModal extends Modal {
     }
 
     onOpen() {
-        const { modalEl } = this;
-        const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
-        closeButton.setAttribute('style', 'display: none;');
+        //const { modalEl } = this;
+        //const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+        //closeButton.setAttribute('style', 'display: none;');
 
         const { contentEl } = this;
         contentEl.empty();
