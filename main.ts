@@ -77,13 +77,10 @@ export default class PasswordPlugin extends Plugin {
 
         // when the file opened, check if it need to be protected, if so, close it, and show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile) => {
-            if (file !== null)
-            {
-                if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-                    // firstly close the file, then show the password dialog
-                    this.closeLeave(file);
-                    this.closePasswordProtection(file);
-                }
+            if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
+                // firstly close the file, then show the password dialog
+                this.closeLeave(file);
+                this.closePasswordProtection(file);
             }
         }));
     }
@@ -94,9 +91,7 @@ export default class PasswordPlugin extends Plugin {
     // open note
     async openLeave(file: TFile) {
         let leaf = this.app.workspace.getLeaf(false);
-        if (leaf != null) {
-            leaf.openFile(file);
-        }
+        leaf?.openFile(file);
     }
 
     // close a note
@@ -394,7 +389,7 @@ class SetPasswordModal extends Modal {
         // check the confirm
         const pwConfirmChecker = () => {
             // is either input and confirm field empty?
-            if (pwInputEl.value == '' || pwInputEl.value == null || pwConfirmEl.value == '' || pwConfirmEl.value == null) {
+            if (pwInputEl.value == '' || pwConfirmEl.value == '') {
                 switchHint('red', 0);
                 return false;
             }
@@ -416,9 +411,7 @@ class SetPasswordModal extends Modal {
 
         // check the input and confirm
         const pwChecker = (ev: Event | null) => {
-            if (ev != null) {
-                ev.preventDefault();
-            }
+            ev?.preventDefault();
 
             let goodToGo = pwConfirmChecker();
             if (!goodToGo) {
@@ -438,9 +431,7 @@ class SetPasswordModal extends Modal {
 
         // cancel the modal
         const cancelEnable = (ev: Event | null) => {
-            if (ev != null) {
-                ev.preventDefault();
-            }
+            ev?.preventDefault();
             this.close();
         }
 
@@ -526,7 +517,7 @@ class VerifyPasswordModal extends Modal {
         // check the confirm input
         const pwConfirmChecker = () => {
             // is either input and confirm field empty?
-            if (pwInputEl.value == '' || pwInputEl.value == null) {
+            if (pwInputEl.value == '') {
                 messageEl.style.color = 'red';
                 messageEl.setText(this.plugin.t("password_is_empty"));
                 return false;
@@ -558,9 +549,7 @@ class VerifyPasswordModal extends Modal {
 
         // check the input and confirm
         const pwChecker = (ev: Event | null) => {
-            if (ev != null) {
-                ev.preventDefault();
-            }
+            ev?.preventDefault();
 
             let goodToGo = pwConfirmChecker();
             if (!goodToGo) {

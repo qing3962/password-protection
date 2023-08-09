@@ -671,11 +671,9 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       }
     });
     this.registerEvent(this.app.workspace.on("file-open", (file) => {
-      if (file !== null) {
-        if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-          this.closeLeave(file);
-          this.closePasswordProtection(file);
-        }
+      if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
+        this.closeLeave(file);
+        this.closePasswordProtection(file);
       }
     }));
   }
@@ -684,9 +682,7 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   // open note
   async openLeave(file) {
     let leaf = this.app.workspace.getLeaf(false);
-    if (leaf != null) {
-      leaf.openFile(file);
-    }
+    leaf == null ? void 0 : leaf.openFile(file);
   }
   // close a note
   async closeLeave(file) {
@@ -923,7 +919,7 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       switchHint("", 0);
     });
     const pwConfirmChecker = () => {
-      if (pwInputEl.value == "" || pwInputEl.value == null || pwConfirmEl.value == "" || pwConfirmEl.value == null) {
+      if (pwInputEl.value == "" || pwConfirmEl.value == "") {
         switchHint("red", 0);
         return false;
       }
@@ -939,9 +935,7 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       return true;
     };
     const pwChecker = (ev) => {
-      if (ev != null) {
-        ev.preventDefault();
-      }
+      ev == null ? void 0 : ev.preventDefault();
       let goodToGo = pwConfirmChecker();
       if (!goodToGo) {
         return;
@@ -954,9 +948,7 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       this.close();
     };
     const cancelEnable = (ev) => {
-      if (ev != null) {
-        ev.preventDefault();
-      }
+      ev == null ? void 0 : ev.preventDefault();
       this.close();
     };
     pwInputEl.addEventListener("keypress", (event) => {
@@ -1011,7 +1003,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       messageEl.setText(this.plugin.t("enter_password_to_verify"));
     });
     const pwConfirmChecker = () => {
-      if (pwInputEl.value == "" || pwInputEl.value == null) {
+      if (pwInputEl.value == "") {
         messageEl.style.color = "red";
         messageEl.setText(this.plugin.t("password_is_empty"));
         return false;
@@ -1033,9 +1025,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       return true;
     };
     const pwChecker = (ev) => {
-      if (ev != null) {
-        ev.preventDefault();
-      }
+      ev == null ? void 0 : ev.preventDefault();
       let goodToGo = pwConfirmChecker();
       if (!goodToGo) {
         return;
