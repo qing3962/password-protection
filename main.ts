@@ -490,10 +490,6 @@ class VerifyPasswordModal extends Modal {
     }
 
     onOpen() {
-        const { modalEl } = this;
-        const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
-        closeButton.setAttribute('style', 'display: none;');
-
         const { contentEl } = this;
         contentEl.empty();
 
@@ -587,10 +583,6 @@ class VerifyPasswordModal extends Modal {
         this.plugin.isVerifyPasswordWaitting = false;
         const { contentEl } = this;
         contentEl.empty();
-        if (!this.plugin.isVerifyPasswordCorrect) {
-            const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
-        } else {
-            this.onSubmit();
-        }
+        this.onSubmit();
     }
 }

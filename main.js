@@ -987,9 +987,6 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
     this.onSubmit = onSubmit;
   }
   onOpen() {
-    const { modalEl } = this;
-    const closeButton = modalEl.getElementsByClassName("modal-close-button")[0];
-    closeButton.setAttribute("style", "display: none;");
     const { contentEl } = this;
     contentEl.empty();
     contentEl.createEl("h2", { text: this.plugin.t("verify_password") });
@@ -1051,11 +1048,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
     this.plugin.isVerifyPasswordWaitting = false;
     const { contentEl } = this;
     contentEl.empty();
-    if (!this.plugin.isVerifyPasswordCorrect) {
-      const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
-    } else {
-      this.onSubmit();
-    }
+    this.onSubmit();
   }
 };
 /*! Bundled license information:
