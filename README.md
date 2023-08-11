@@ -18,9 +18,7 @@ Once you have entered the correct password, you will not be asked to enter it ag
 
 If you want to turn on protection again, you may invoke the command panel, type "pass", find the command - "Password Protection: Open", run it, when you open a protected note, the password verification box will pop up again.  
 
-In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.  
-
-Note: Once the password prompt modal is opened, it will not be able to be closed until you enter correct password. Because I don't want someone who doesn't know the password to be able to go on, otherwise the guys will see the tree of directory and title of the notes.  
+In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.   
 
 ## The systems have been tested:
 
@@ -71,8 +69,6 @@ This project is licensed under the [MIT License](LICENSE).
 如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令 - "Password Protection: 打开密码保护"，执行它，那么再要打开受保护的笔记，会再次弹出密码验证框。  
 
 在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。  
-
-注意：密码验证框被打开后，除非输入正确的密码否则不能被关闭。因为我不想不知道密码的人能够继续，如果能关闭，就能看到所有笔记的标题和目录树。  
 
 ## 已测试的系统
 
