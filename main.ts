@@ -78,11 +78,11 @@ export default class PasswordPlugin extends Plugin {
         // when the file opened, check if it need to be protected, if so, close it, and show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
-                let tmpFile: TFile = file as TFile;
-                if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(tmpFile)) {
+                //let tmpFile: TFile = file as TFile;
+                if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
                     // firstly close the file, then show the password dialog
-                    this.closeLeave(tmpFile);
-                    this.closePasswordProtection(tmpFile);
+                    this.closeLeave(file);
+                    this.closePasswordProtection(file);
                 }
             }
         }));
@@ -112,16 +112,13 @@ export default class PasswordPlugin extends Plugin {
         }
 
         for (const leaf of leaves) {
-            if (leaf.view instanceof FileView) {
-                let needClose = false;
-                if (leaf.view.file.path == file.path) {
-                    needClose = true;
-                }
-
-                if (needClose) {
-                    await emptyLeaf(leaf);
-                    leaf.detach();
-                    break;
+            if (leaf != null && leaf.view instanceof FileView) {
+                if (leaf.view.file != null) {
+                    if (leaf.view.file.path == file.path) {
+                        await emptyLeaf(leaf);
+                        leaf.detach();
+                        break;
+                    }
                 }
             }
         }
@@ -140,7 +137,7 @@ export default class PasswordPlugin extends Plugin {
         }
 
         for (const leaf of leaves) {
-            if (leaf.view instanceof FileView) {
+            if (leaf.view instanceof FileView && leaf.view.file != null) {
                 let needClose = this.isProtectedFile(leaf.view.file);
                 if (needClose) {
                     await emptyLeaf(leaf);
