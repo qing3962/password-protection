@@ -27,7 +27,8 @@
   "password_not_match": "Password isn't match.",
   "password_is_right": "Password is right.",
   "auto_lock_interval_name": "The interval for auto-open password protection",
-  "auto_lock_interval_desc": "The interval between the last time protection was turned off or a protected file was opened, the unit is minute.",
-  "forbid_close_verify_modal_name": "Prohibit closing the password verify box unless you type right password",
-  "forbid_close_verify_modal_desc": "This will protect more privacy, but if you forgot password, you may not be able to enter the Obsidian."
+  "auto_lock_interval_desc": "The interval from the last time to current that protection closed or the protected file was opened, the unit is minute.",
+  "forbid_close_verify_modal_name": "Prohibit closing the password verify box as soon as the password isn't right",
+  "forbid_close_verify_modal_desc": "This will protect more privacy, but if you forgot password, you may not be able to enter the Obsidian.",
+  "before_open_protection": "Turn on the switch below, and the settings above cannot be modified anymore."
 }

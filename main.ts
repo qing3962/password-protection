@@ -355,6 +355,8 @@ class PasswordSettingTab extends PluginSettingTab {
                 }))
             .setDisabled(this.plugin.settings.protectEnabled);
 
+        containerEl.createEl("h6", { text: this.plugin.t("before_open_protection")});
+
         new Setting(containerEl)
             .setName(this.plugin.t("setting_toggle_name"))
             .setDesc(this.plugin.t("setting_toggle_desc"))
