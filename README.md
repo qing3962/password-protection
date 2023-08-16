@@ -20,6 +20,14 @@ If you want to turn on protection again, you may invoke the command panel, type 
 
 In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.  
 
+## New feature  
+
+- version: 1.1.12 (8/16/2023)
+
+1. Add the interval setting of Auto-open password protection. If you set a value greater than 0, when time elapse certain minutes from last closed protection or last opened a protected file，the password verify box will pop up again as soon as you open a new protected file.  
+
+2. Add the switch setting of prohibit close password verify box, this will provide more protection. If you enable the setting option, the password verify box wouldn’t be able to be closed as soon as it pop up, unless you type right password. Caution: If the protected folder you set is root path (/),  and you forgot your password, you may not be able to enter the Obsidian, because in this case, when the Obsidian launching, a password verification box will pop up and cannot be directly closed.  
+
 ## The systems have been tested:
 
 I have tested the plugin on Windows and iOS (iPhone、iPad) with Obsidian in 2023.5.
@@ -69,6 +77,14 @@ This project is licensed under the [MIT License](LICENSE).
 如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令 - "Password Protection: 打开密码保护"，执行它，那么再要打开受保护的笔记，会再次弹出密码验证框。  
 
 在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。  
+
+## 新功能  
+
+- 版本: 1.1.12 (2023.8.16)
+
+1. 增加自动打开密码保护的间隔时间设置，单位：分钟。如果设置的时间大于0，当距离上次关闭密码保护或上次打开一个被保护的文件，过去了设置的时间，插件将自动再次打开密码保护，如果用户再次打开一个受保护的文件，将弹出密码验证框验证密码。  
+
+2. 增加禁止关闭密码验证框的选项，这将提供更多的保护。如果打开这个开关，密码验证框弹出后将不能被关闭。当你设置的保护目录是根目录，如果你忘记密码，你将有可能进不了Obsidian，因为这种情况下，Obsidian 启动时将弹出密码验证框，而且无法直接关闭。  
 
 ## 已测试的系统
 

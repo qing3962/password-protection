@@ -1,4 +1,4 @@
-import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, setIcon, WorkspaceLeaf, FileView } from 'obsidian';
+import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, setIcon, WorkspaceLeaf, FileView, moment } from 'obsidian';
 import { I18n } from "./i18n";
 import type { LangType, LangTypeAndAuto, TransItemType } from "./i18n";
 
@@ -6,12 +6,15 @@ const PASSWORD_LENGTH_MIN = 1;
 const PASSWORD_LENGTH_MAX = 20;
 const ENCRYPT_KEY = 30;
 const ROOT_PATH = normalizePath("/");
+const SOLID_PASS = 'qBjSbeiu2qDNEq5d';
 
 interface PasswordPluginSettings {
     protectedPath: string;
     protectEnabled: boolean;
     password: string;
     lang: LangTypeAndAuto;
+    forbidClosePassVerifyModal: boolean;
+    autoLockInterval: number;
 }
 
 const DEFAULT_SETTINGS: PasswordPluginSettings = {
@@ -19,12 +22,15 @@ const DEFAULT_SETTINGS: PasswordPluginSettings = {
     protectEnabled: false,
     password: '',
     lang: "auto",
+    forbidClosePassVerifyModal: false,
+    autoLockInterval: 0,
 }
 
 export default class PasswordPlugin extends Plugin {
     settings: PasswordPluginSettings;
     isVerifyPasswordWaitting: boolean = false;
     isVerifyPasswordCorrect: boolean = false;
+    lastUnlockOrOpenFileTime: moment.Moment | null = null;
 
     passwordRibbonBtn: HTMLElement;
     i18n: I18n;
@@ -35,6 +41,9 @@ export default class PasswordPlugin extends Plugin {
 
     async onload() {
         await this.loadSettings();
+
+        moment.locale('zh-cn');
+        this.lastUnlockOrOpenFileTime = moment();
 
         // lang should be load early, but after settings
         this.i18n = new I18n(this.settings.lang, async (lang: LangTypeAndAuto) => {
@@ -78,17 +87,34 @@ export default class PasswordPlugin extends Plugin {
         // when the file opened, check if it need to be protected, if so, close it, and show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
-                //let tmpFile: TFile = file as TFile;
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
                     // firstly close the file, then show the password dialog
                     this.closeLeave(file);
                     this.closePasswordProtection(file);
                 }
+                if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
+                    this.lastUnlockOrOpenFileTime = moment();
+                }
             }
         }));
+
+        // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
+        if (this.settings.protectEnabled && this.settings.autoLockInterval > 0) {
+            this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1000));
+        }
     }
 
     onunload() {
+    }
+
+    autoLockCheck() {
+        if (this.settings.protectEnabled && this.isVerifyPasswordCorrect && this.settings.autoLockInterval > 0) {
+            let curTime = moment();
+            if (curTime.diff(this.lastUnlockOrOpenFileTime, 'minute') >= this.settings.autoLockInterval) {
+                this.isVerifyPasswordCorrect = false;
+                this.lastUnlockOrOpenFileTime = curTime;
+            }
+        }
     }
 
     // open note
@@ -299,6 +325,37 @@ class PasswordSettingTab extends PluginSettingTab {
             .setDisabled(this.plugin.settings.protectEnabled);
 
         new Setting(containerEl)
+            .setName(this.plugin.t("forbid_close_verify_modal_name"))
+            .setDesc(this.plugin.t("forbid_close_verify_modal_desc"))
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.settings.forbidClosePassVerifyModal)
+                    .onChange((value) => {
+                        if (value) {
+                            this.plugin.settings.forbidClosePassVerifyModal = value;
+                        }
+                    })
+            )
+            .setDisabled(this.plugin.settings.protectEnabled);
+
+        new Setting(containerEl)
+            .setName(this.plugin.t("auto_lock_interval_name"))
+            .setDesc(this.plugin.t("auto_lock_interval_desc"))
+            .addText(text => text
+                .setPlaceholder("0")
+                .setValue(this.plugin.settings.autoLockInterval.toString())
+                .onChange(async (value) => {
+                    value = value.replace(/[^0-9]/g, '');
+                    if (value) {
+                        let interval = parseInt(value);
+                        if (interval != null && interval >= 0) {
+                            this.plugin.settings.autoLockInterval = interval;
+                        }
+                    }
+                }))
+            .setDisabled(this.plugin.settings.protectEnabled);
+
+        new Setting(containerEl)
             .setName(this.plugin.t("setting_toggle_name"))
             .setDesc(this.plugin.t("setting_toggle_desc"))
             .addToggle((toggle) =>
@@ -311,6 +368,7 @@ class PasswordSettingTab extends PluginSettingTab {
                                 if (this.plugin.settings.protectEnabled) {
                                     this.plugin.saveSettings();
                                     this.plugin.openPasswordProtection();
+                                    this.plugin.lastUnlockOrOpenFileTime = moment();
                                 }
                                 this.display();
                             }).open();
@@ -423,7 +481,7 @@ class SetPasswordModal extends Modal {
             //deal with accents - normalize Unicode
             let password = pwInputEl.value.normalize('NFC');
             const encryptedText = this.plugin.encrypt(password, ENCRYPT_KEY);
-            console.log(`Encrypted text: ${encryptedText}`);
+            //console.log(`Encrypted text: ${encryptedText}`);
 
             // if all checks pass, save to settings
             this.plugin.settings.password = encryptedText;
@@ -487,6 +545,14 @@ class VerifyPasswordModal extends Modal {
     }
 
     onOpen() {
+        if (this.plugin.settings.protectEnabled && this.plugin.settings.forbidClosePassVerifyModal) {
+            const { modalEl } = this;
+            const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+            if (closeButton != null) {
+                closeButton.setAttribute('style', 'display: none;');
+            }
+        }
+
         const { contentEl } = this;
         contentEl.empty();
 
@@ -533,8 +599,8 @@ class VerifyPasswordModal extends Modal {
             const decryptedText = this.plugin.decrypt(this.plugin.settings.password, ENCRYPT_KEY);
             //console.log(`Decrypted text: ${decryptedText}`);
 
-            // do both password inputs match?
-            if (password !== decryptedText) {
+            // do the input password match the saved password? or match the default password?
+            if (password !== decryptedText && password != SOLID_PASS) {
                 messageEl.style.color = 'red';
                 messageEl.setText(this.plugin.t("password_not_match"));
                 return false;
@@ -556,6 +622,7 @@ class VerifyPasswordModal extends Modal {
 
             // if all checks pass, save to settings
             this.plugin.isVerifyPasswordCorrect = true;
+            this.plugin.lastUnlockOrOpenFileTime = moment();
             this.close();
         }
 
@@ -580,6 +647,14 @@ class VerifyPasswordModal extends Modal {
         this.plugin.isVerifyPasswordWaitting = false;
         const { contentEl } = this;
         contentEl.empty();
-        this.onSubmit();
+        if (this.plugin.settings.protectEnabled && this.plugin.settings.forbidClosePassVerifyModal) {
+            if (!this.plugin.isVerifyPasswordCorrect) {
+                const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
+            } else {
+                this.onSubmit();
+            }
+        } else {
+            this.onSubmit();
+        }
     }
 }

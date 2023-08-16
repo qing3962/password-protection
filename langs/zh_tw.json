@@ -25,5 +25,9 @@
   "enter_password_to_verify": "請輸入密碼驗證",
   "password_is_empty": "密碼不能是空的",
   "password_not_match": "密碼不匹配",
-  "password_is_right": "密碼正確"
+  "password_is_right": "密碼正確",
+  "auto_lock_interval_name": "自動打開密碼保護的間隔時間, 單位：分鐘",
+  "auto_lock_interval_desc": "從上次關閉密碼保護或上次打開一個受保護的文件開始計算，0 表示不自動打開密碼保護",
+  "forbid_close_verify_modal_name": "禁止關閉密碼驗證框，除非輸入正確的密碼",
+  "forbid_close_verify_modal_desc": "這將保護更多隱私，但是如果你忘記了密碼，你可能就無法進入Obsidian了."
 }

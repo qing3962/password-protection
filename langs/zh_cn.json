@@ -25,5 +25,9 @@
   "enter_password_to_verify": "请输入密码验证",
   "password_is_empty": "密码不能是空的",
   "password_not_match": "密码不匹配",
-  "password_is_right": "密码正确"
+  "password_is_right": "密码正确",
+  "auto_lock_interval_name": "自动打开密码保护的间隔时间, 单位：分钟",
+  "auto_lock_interval_desc": "从上次关闭密码保护或上次打开一个受保护的文件开始计算，0 代表不自动打开密码保护",
+  "forbid_close_verify_modal_name": "禁止关闭密码验证框，除非输入正确的密码",
+  "forbid_close_verify_modal_desc": "这将保护更多隐私，但是如果你忘记了密码，你可能就无法进入Obsidian了."
 }
