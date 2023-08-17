@@ -30,5 +30,5 @@
   "auto_lock_interval_desc": "从上次关闭密码保护或上次打开一个受保护的文件开始计算，0 代表不自动打开密码保护, 单位：分钟",
   "forbid_close_verify_modal_name": "禁止关闭密码验证框 (当密码不正确)",
   "forbid_close_verify_modal_desc": "这将保护更多隐私，但是如果你忘记了密码，你可能将无法进入Obsidian.",
-  "before_open_protection": "打开密码保护开关后，上面的设置将不可修改."
+  "before_open_protection": "打开下面的密码保护开关后，上面的设置将不可修改."
 }

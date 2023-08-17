@@ -30,5 +30,5 @@
   "auto_lock_interval_desc": "從上次關閉密碼保護或上次打開一個受保護的文件開始計算，0 表示不自動打開密碼保護，單位：分鐘",
   "forbid_close_verify_modal_name": "禁止關閉密碼驗證框 (当密碼不正確)",
   "forbid_close_verify_modal_desc": "這將保護更多隱私，但是如果你忘記了密碼，你可能将無法進入Obsidian.",
-  "before_open_protection": "打開密碼保護開關后，上面的設置將不可修改."
+  "before_open_protection": "打開下面的密碼保護開關后，上面的設置將不可修改."
 }

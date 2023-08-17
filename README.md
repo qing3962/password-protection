@@ -50,6 +50,14 @@ If you cann't install the plugin from community plugin market, you can step by s
 
 7. the password protection plugin start work, when you open a note in the protected path you set, a Password Verify Modal will popup, enter the right password, you just open the note.  
 
+## Contributing
+
+Contributions to the password-protection plugin are welcome!  
+
+1. If you find any bugs or have any suggestions, please [open an issue](https://github.com/qing3962/password-protection/issues) or submit a pull request.  
+
+2. If you want to display your own native language in the plugin, please refer to the ./langs/en.json file in the source code, create a new language file, and then open an issue attached the file or submit a pull request.  
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
@@ -109,6 +117,11 @@ This project is licensed under the [MIT License](LICENSE).
 
 7. 当你打开一个位于保护路径下的笔记，将弹出密码验证弹窗，只有输入正确的密码，你才能继续打开笔记。  
 
+## 贡献和帮助
+
+欢迎你对这个插件做出贡献!  
+
+1. 如果你发现任何 Bug 或者有任何建议，请[创建一个 issue 在 GitHub](https://github.com/qing3962/password-protection/issues)，或者 fork 代码仓库修改后提交一个 pull request，或者发送邮件给我：qing3962@sina.com.  
 
 ## 许可证
 
