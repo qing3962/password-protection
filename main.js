@@ -660,7 +660,6 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
   }
   async onload() {
     await this.loadSettings();
-    import_obsidian2.moment.locale("zh-cn");
     this.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
     this.i18n = new I18n(this.settings.lang, async (lang) => {
       this.settings.lang = lang;

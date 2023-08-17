@@ -42,7 +42,6 @@ export default class PasswordPlugin extends Plugin {
     async onload() {
         await this.loadSettings();
 
-        moment.locale('zh-cn');
         this.lastUnlockOrOpenFileTime = moment();
 
         // lang should be load early, but after settings
