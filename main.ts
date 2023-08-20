@@ -86,11 +86,13 @@ export default class PasswordPlugin extends Plugin {
         // when the file opened, check if it need to be protected, if so, close it, and show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
+                this.autoLockCheck();
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
                     // firstly close the file, then show the password dialog
                     this.closeLeave(file);
                     this.closePasswordProtection(file);
                 }
+                // update the time of last open file, the file may be protected and may be not.
                 if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
                     this.lastUnlockOrOpenFileTime = moment();
                 }
@@ -111,7 +113,6 @@ export default class PasswordPlugin extends Plugin {
             let curTime = moment();
             if (curTime.diff(this.lastUnlockOrOpenFileTime, 'minute') >= this.settings.autoLockInterval) {
                 this.isVerifyPasswordCorrect = false;
-                this.lastUnlockOrOpenFileTime = curTime;
             }
         }
     }
@@ -369,7 +370,6 @@ class PasswordSettingTab extends PluginSettingTab {
                                 if (this.plugin.settings.protectEnabled) {
                                     this.plugin.saveSettings();
                                     this.plugin.openPasswordProtection();
-                                    this.plugin.lastUnlockOrOpenFileTime = moment();
                                 }
                                 this.display();
                             }).open();
@@ -622,8 +622,8 @@ class VerifyPasswordModal extends Modal {
             }
 
             // if all checks pass, save to settings
-            this.plugin.isVerifyPasswordCorrect = true;
             this.plugin.lastUnlockOrOpenFileTime = moment();
+            this.plugin.isVerifyPasswordCorrect = true;
             this.close();
         }
 

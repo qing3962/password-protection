@@ -561,7 +561,7 @@ var zh_cn_default = {
   auto_lock_interval_desc: "\u4ECE\u4E0A\u6B21\u5173\u95ED\u5BC6\u7801\u4FDD\u62A4\u6216\u4E0A\u6B21\u6253\u5F00\u4E00\u4E2A\u53D7\u4FDD\u62A4\u7684\u6587\u4EF6\u5F00\u59CB\u8BA1\u7B97\uFF0C0 \u4EE3\u8868\u4E0D\u81EA\u52A8\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4, \u5355\u4F4D\uFF1A\u5206\u949F",
   forbid_close_verify_modal_name: "\u7981\u6B62\u5173\u95ED\u5BC6\u7801\u9A8C\u8BC1\u6846 (\u5F53\u5BC6\u7801\u4E0D\u6B63\u786E)",
   forbid_close_verify_modal_desc: "\u8FD9\u5C06\u4FDD\u62A4\u66F4\u591A\u9690\u79C1\uFF0C\u4F46\u662F\u5982\u679C\u4F60\u5FD8\u8BB0\u4E86\u5BC6\u7801\uFF0C\u4F60\u53EF\u80FD\u5C06\u65E0\u6CD5\u8FDB\u5165Obsidian.",
-  before_open_protection: "\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4\u5F00\u5173\u540E\uFF0C\u4E0A\u9762\u7684\u8BBE\u7F6E\u5C06\u4E0D\u53EF\u4FEE\u6539."
+  before_open_protection: "\u6253\u5F00\u4E0B\u9762\u7684\u5BC6\u7801\u4FDD\u62A4\u5F00\u5173\u540E\uFF0C\u4E0A\u9762\u7684\u8BBE\u7F6E\u5C06\u4E0D\u53EF\u4FEE\u6539."
 };
 
 // langs/zh_tw.json
@@ -596,7 +596,7 @@ var zh_tw_default = {
   auto_lock_interval_desc: "\u5F9E\u4E0A\u6B21\u95DC\u9589\u5BC6\u78BC\u4FDD\u8B77\u6216\u4E0A\u6B21\u6253\u958B\u4E00\u500B\u53D7\u4FDD\u8B77\u7684\u6587\u4EF6\u958B\u59CB\u8A08\u7B97\uFF0C0 \u8868\u793A\u4E0D\u81EA\u52D5\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77\uFF0C\u55AE\u4F4D\uFF1A\u5206\u9418",
   forbid_close_verify_modal_name: "\u7981\u6B62\u95DC\u9589\u5BC6\u78BC\u9A57\u8B49\u6846 (\u5F53\u5BC6\u78BC\u4E0D\u6B63\u78BA)",
   forbid_close_verify_modal_desc: "\u9019\u5C07\u4FDD\u8B77\u66F4\u591A\u96B1\u79C1\uFF0C\u4F46\u662F\u5982\u679C\u4F60\u5FD8\u8A18\u4E86\u5BC6\u78BC\uFF0C\u4F60\u53EF\u80FD\u5C06\u7121\u6CD5\u9032\u5165Obsidian.",
-  before_open_protection: "\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77\u958B\u95DC\u540E\uFF0C\u4E0A\u9762\u7684\u8A2D\u7F6E\u5C07\u4E0D\u53EF\u4FEE\u6539."
+  before_open_protection: "\u6253\u958B\u4E0B\u9762\u7684\u5BC6\u78BC\u4FDD\u8B77\u958B\u95DC\u540E\uFF0C\u4E0A\u9762\u7684\u8A2D\u7F6E\u5C07\u4E0D\u53EF\u4FEE\u6539."
 };
 
 // langs/index.ts
@@ -692,6 +692,7 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
     });
     this.registerEvent(this.app.workspace.on("file-open", (file) => {
       if (file != null) {
+        this.autoLockCheck();
         if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
           this.closeLeave(file);
           this.closePasswordProtection(file);
@@ -712,7 +713,6 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       let curTime = (0, import_obsidian2.moment)();
       if (curTime.diff(this.lastUnlockOrOpenFileTime, "minute") >= this.settings.autoLockInterval) {
         this.isVerifyPasswordCorrect = false;
-        this.lastUnlockOrOpenFileTime = curTime;
       }
     }
   }
@@ -912,7 +912,6 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
             if (this.plugin.settings.protectEnabled) {
               this.plugin.saveSettings();
               this.plugin.openPasswordProtection();
-              this.plugin.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
             }
             this.display();
           }).open();
@@ -1088,8 +1087,8 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       if (!goodToGo) {
         return;
       }
-      this.plugin.isVerifyPasswordCorrect = true;
       this.plugin.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
+      this.plugin.isVerifyPasswordCorrect = true;
       this.close();
     };
     pwInputEl.addEventListener("keypress", (event) => {
