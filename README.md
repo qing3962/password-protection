@@ -2,11 +2,11 @@
 
 ## Purpose
 
-I developed this plugin to prevent my girlfriend from peeking my private notes or diaries.  
+I developed this plugin to prevent my girl-friend from peeking my private notes or diaries.  
 
 ## What does this plugin do?
 
-No encrypt, no decrypt, This plugin doesn't modify your notes, it will not do anything with your notes.  
+No encrypt, no decrypt, This plugin doesn't modify your notes, it will not do anything with your notes, only lock the obsidian.  
 
 When you launch the Obsidian:
 
@@ -16,15 +16,15 @@ If the protected folder you set is a sub-folder (/xxx), when you open a note tha
 
 Once you have entered the correct password, you will not be asked to enter it again when opening other protected notes.  
 
-If you want to turn on protection again, you may invoke the command panel, type "pass", find the command - "Password Protection: Open", run it, when you open a protected note, the password verification box will pop up again.  
+If you want to lock password protection again, you may invoke the command panel, type "pass", find the command - "Password Protection: Lock", run it, when you open a protected note, the password verification box will pop up again.  
 
-In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute protecting or unprotecting action.  
+In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute locking or unlocking action.  
 
 ## New feature  
 
 - version: 1.1.12 (8/16/2023)
 
-1. Add the interval setting of Auto-open password protection. If you set a value greater than 0, when time elapse certain minutes from last closed protection or last opened a protected file，the password verify box will pop up again as soon as you open a new protected file.  
+1. Add the interval setting of Auto-lock password protection. If you set a value greater than 0, when time elapse certain minutes from last unlocked protection or last opened a protected file，the password verify box will pop up again as soon as you open a new protected file.  
 
 2. Add the switch setting of prohibit close password verify box, this will provide more protection. If you enable the setting option, the password verify box wouldn’t be able to be closed as soon as it pop up, unless you type right password. Caution: If the protected folder you set is root path (/),  and you forgot your password, you may not be able to enter the Obsidian, because in this case, when the Obsidian launching, a password verification box will pop up and cannot be directly closed.  
 
@@ -72,7 +72,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 这个插件做了什么？
 
-这个插件不会加密和解密你的笔记，也不会修改你的笔记，它不会对你的笔记做任何事。  
+这个插件不会加密和解密你的笔记，也不会修改你的笔记，它不会对你的笔记做任何事，只会用弹出密码验证框的形式锁定Obsidian。  
 
 当你每次启动 Obsidian:
 
