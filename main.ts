@@ -331,9 +331,7 @@ class PasswordSettingTab extends PluginSettingTab {
                 toggle
                     .setValue(this.plugin.settings.forbidClosePassVerifyModal)
                     .onChange((value) => {
-                        if (value) {
-                            this.plugin.settings.forbidClosePassVerifyModal = value;
-                        }
+                        this.plugin.settings.forbidClosePassVerifyModal = value;
                     })
             )
             .setDisabled(this.plugin.settings.protectEnabled);
