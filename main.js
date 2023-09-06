@@ -702,6 +702,20 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
         }
       }
     }));
+    this.registerEvent(this.app.workspace.on("active-leaf-change", (leaf) => {
+      if (leaf != null && leaf.view != null) {
+        let viewType = leaf.view.getViewType();
+        if (viewType == "search") {
+          this.autoLockCheck();
+          if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect) {
+            this.verifyToClosePasswordProtection();
+          }
+          if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
+            this.lastUnlockOrOpenFileTime = (0, import_obsidian2.moment)();
+          }
+        }
+      }
+    }));
     if (this.settings.protectEnabled && this.settings.autoLockInterval > 0) {
       this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1e3));
     }
@@ -889,9 +903,7 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
     })).setDisabled(this.plugin.settings.protectEnabled);
     new import_obsidian2.Setting(containerEl).setName(this.plugin.t("forbid_close_verify_modal_name")).setDesc(this.plugin.t("forbid_close_verify_modal_desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.forbidClosePassVerifyModal).onChange((value) => {
-        if (value) {
-          this.plugin.settings.forbidClosePassVerifyModal = value;
-        }
+        this.plugin.settings.forbidClosePassVerifyModal = value;
       })
     ).setDisabled(this.plugin.settings.protectEnabled);
     new import_obsidian2.Setting(containerEl).setName(this.plugin.t("auto_lock_interval_name")).setDesc(this.plugin.t("auto_lock_interval_desc")).addText((text) => text.setPlaceholder("0").setValue(this.plugin.settings.autoLockInterval.toString()).onChange(async (value) => {

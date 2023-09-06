@@ -99,6 +99,24 @@ export default class PasswordPlugin extends Plugin {
             }
         }));
 
+        // when the search view opened, check if it need to be protected, if so, show the password dialog.
+        this.registerEvent(this.app.workspace.on('active-leaf-change', (leaf: WorkspaceLeaf | null) => {
+            if (leaf != null && leaf.view != null) {
+                let viewType = leaf.view.getViewType();
+                if (viewType == 'search') {
+                    this.autoLockCheck();
+                    if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect) {
+                        // show the password dialog
+                        this.verifyToClosePasswordProtection();
+                    }
+                    // update the time of last search view actived.
+                    if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
+                        this.lastUnlockOrOpenFileTime = moment();
+                    }
+                }
+            }
+        }));
+
         // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
         if (this.settings.protectEnabled && this.settings.autoLockInterval > 0) {
             this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1000));
