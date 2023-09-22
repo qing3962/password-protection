@@ -654,6 +654,8 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
     this.isVerifyPasswordWaitting = false;
     this.isVerifyPasswordCorrect = false;
     this.lastUnlockOrOpenFileTime = null;
+    this.startupFile = [];
+    this.isLayoutReady = true;
     this.t = (x, vars) => {
       return this.i18n.t(x, vars);
     };
@@ -694,6 +696,9 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       if (file != null) {
         this.autoLockCheck();
         if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
+          if (this.isLayoutReady && this.isVerifyPasswordWaitting) {
+            this.startupFile.push(file);
+          }
           this.closeLeave(file);
           this.closePasswordProtection(file);
         }
@@ -823,6 +828,15 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
           (0, import_obsidian2.setIcon)(this.passwordRibbonBtn, "lock");
           this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
           new import_obsidian2.Notice(this.t("password_protection_closed"));
+          if (this.isLayoutReady) {
+            this.isLayoutReady = false;
+            for (const file of this.startupFile) {
+              if (file != null) {
+                this.openLeave(file);
+              }
+            }
+            this.startupFile = [];
+          }
         }
       }).open();
     }

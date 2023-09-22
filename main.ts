@@ -31,6 +31,8 @@ export default class PasswordPlugin extends Plugin {
     isVerifyPasswordWaitting: boolean = false;
     isVerifyPasswordCorrect: boolean = false;
     lastUnlockOrOpenFileTime: moment.Moment | null = null;
+    startupFile: TFile[] = [];
+    isLayoutReady: boolean = true;
 
     passwordRibbonBtn: HTMLElement;
     i18n: I18n;
@@ -88,7 +90,10 @@ export default class PasswordPlugin extends Plugin {
             if (file != null) {
                 this.autoLockCheck();
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-                    // firstly close the file, then show the password dialog
+                    // firstly cache the file if startuping, close the file, then show the password dialog
+                    if (this.isLayoutReady && this.isVerifyPasswordWaitting) {
+                        this.startupFile.push(file);
+                    }
                     this.closeLeave(file);
                     this.closePasswordProtection(file);
                 }
@@ -240,6 +245,15 @@ export default class PasswordPlugin extends Plugin {
                     setIcon(this.passwordRibbonBtn, "lock");
                     this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
                     new Notice(this.t("password_protection_closed"));
+                    if (this.isLayoutReady) {
+                        this.isLayoutReady = false;
+                        for (const file of this.startupFile) {
+                            if (file != null) {
+                                this.openLeave(file);
+                            }
+                        }
+                        this.startupFile = [];
+                    }
                 }
             }).open();
         }
