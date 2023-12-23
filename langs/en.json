@@ -30,5 +30,8 @@
   "auto_lock_interval_desc": "The number of minutes to wait before auto-locking, since the protected file was opened.",
   "forbid_close_verify_modal_name": "Disable closing the password verify box if the password isn't correct",
   "forbid_close_verify_modal_desc": "This will allow more privacy, but if you forgot your password, you may not be able to view your notes.",
-  "before_open_protection": "Turn on the switch below to enable password protection, and disable the options above."
+  "before_open_protection": "Turn on the switch below to enable password protection, and disable the options above.",
+  "setting_pwd_hint_question_name": "Password prompt",
+  "setting_pwd_hint_question_desc": "Please type a question to help you remember your password.",
+  "place_holder_enter_pwd_hint_question": "Password prompt question"
 }

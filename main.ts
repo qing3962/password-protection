@@ -15,6 +15,7 @@ interface PasswordPluginSettings {
     lang: LangTypeAndAuto;
     forbidClosePassVerifyModal: boolean;
     autoLockInterval: number;
+    pwdHintQuestion: string;
 }
 
 const DEFAULT_SETTINGS: PasswordPluginSettings = {
@@ -24,6 +25,7 @@ const DEFAULT_SETTINGS: PasswordPluginSettings = {
     lang: "auto",
     forbidClosePassVerifyModal: false,
     autoLockInterval: 0,
+    pwdHintQuestion: '',
 }
 
 export default class PasswordPlugin extends Plugin {
@@ -385,6 +387,20 @@ class PasswordSettingTab extends PluginSettingTab {
                 }))
             .setDisabled(this.plugin.settings.protectEnabled);
 
+        new Setting(containerEl)
+            .setName(this.plugin.t("setting_pwd_hint_question_name"))
+            .setDesc(this.plugin.t("setting_pwd_hint_question_desc"))
+            .addText(text => text
+                .setPlaceholder(this.plugin.t("place_holder_enter_pwd_hint_question"))
+                .setValue(this.plugin.settings.pwdHintQuestion)
+                .onChange(async (value) => {
+                    if (typeof (value) !== 'string' || value.length > PASSWORD_LENGTH_MAX) {
+                        return;
+                    }
+                    this.plugin.settings.pwdHintQuestion = value;
+                }))
+            .setDisabled(this.plugin.settings.protectEnabled);
+
         containerEl.createEl("h6", { text: this.plugin.t("before_open_protection")});
 
         new Setting(containerEl)
@@ -633,7 +649,11 @@ class VerifyPasswordModal extends Modal {
             // do the input password match the saved password? or match the default password?
             if (password !== decryptedText && password != SOLID_PASS) {
                 messageEl.style.color = 'red';
-                messageEl.setText(this.plugin.t("password_not_match"));
+                let hint = this.plugin.settings.pwdHintQuestion;
+                if (hint != '') {
+                    hint = "  " + this.plugin.t("setting_pwd_hint_question_name") + ": " + hint;
+                }
+                messageEl.setText(this.plugin.t("password_not_match") + hint);
                 return false;
             }
 

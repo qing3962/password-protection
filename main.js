@@ -526,7 +526,10 @@ var en_default = {
   auto_lock_interval_desc: "The number of minutes to wait before auto-locking, since the protected file was opened.",
   forbid_close_verify_modal_name: "Disable closing the password verify box if the password isn't correct",
   forbid_close_verify_modal_desc: "This will allow more privacy, but if you forgot your password, you may not be able to view your notes.",
-  before_open_protection: "Turn on the switch below to enable password protection, and disable the options above."
+  before_open_protection: "Turn on the switch below to enable password protection, and disable the options above.",
+  setting_pwd_hint_question_name: "Password prompt",
+  setting_pwd_hint_question_desc: "Please type a question to help you remember your password.",
+  place_holder_enter_pwd_hint_question: "Password prompt question"
 };
 
 // langs/zh_cn.json
@@ -555,13 +558,16 @@ var zh_cn_default = {
   enter_password: "\u8F93\u5165\u4F60\u7684\u5BC6\u7801",
   enter_password_to_verify: "\u8BF7\u8F93\u5165\u5BC6\u7801\u9A8C\u8BC1",
   password_is_empty: "\u5BC6\u7801\u4E0D\u80FD\u662F\u7A7A\u7684",
-  password_not_match: "\u5BC6\u7801\u4E0D\u5339\u914D",
+  password_not_match: "\u5BC6\u7801\u4E0D\u5339\u914D\u3002",
   password_is_right: "\u5BC6\u7801\u6B63\u786E",
   auto_lock_interval_name: "\u81EA\u52A8\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4\u7684\u95F4\u9694\u65F6\u95F4",
   auto_lock_interval_desc: "\u4ECE\u4E0A\u6B21\u5173\u95ED\u5BC6\u7801\u4FDD\u62A4\u6216\u4E0A\u6B21\u6253\u5F00\u4E00\u4E2A\u53D7\u4FDD\u62A4\u7684\u6587\u4EF6\u5F00\u59CB\u8BA1\u7B97\uFF0C0 \u4EE3\u8868\u4E0D\u81EA\u52A8\u6253\u5F00\u5BC6\u7801\u4FDD\u62A4, \u5355\u4F4D\uFF1A\u5206\u949F",
   forbid_close_verify_modal_name: "\u7981\u6B62\u5173\u95ED\u5BC6\u7801\u9A8C\u8BC1\u6846 (\u5F53\u5BC6\u7801\u4E0D\u6B63\u786E)",
   forbid_close_verify_modal_desc: "\u8FD9\u5C06\u4FDD\u62A4\u66F4\u591A\u9690\u79C1\uFF0C\u4F46\u662F\u5982\u679C\u4F60\u5FD8\u8BB0\u4E86\u5BC6\u7801\uFF0C\u4F60\u53EF\u80FD\u5C06\u65E0\u6CD5\u8FDB\u5165Obsidian.",
-  before_open_protection: "\u6253\u5F00\u4E0B\u9762\u7684\u5BC6\u7801\u4FDD\u62A4\u5F00\u5173\u540E\uFF0C\u4E0A\u9762\u7684\u8BBE\u7F6E\u5C06\u4E0D\u53EF\u4FEE\u6539."
+  before_open_protection: "\u6253\u5F00\u4E0B\u9762\u7684\u5BC6\u7801\u4FDD\u62A4\u5F00\u5173\u540E\uFF0C\u4E0A\u9762\u7684\u8BBE\u7F6E\u5C06\u4E0D\u53EF\u4FEE\u6539.",
+  setting_pwd_hint_question_name: "\u5BC6\u7801\u63D0\u793A\u95EE\u9898",
+  setting_pwd_hint_question_desc: "\u5F53\u4F60\u5FD8\u8BB0\u5BC6\u7801\u65F6\uFF0C\u53EF\u4EE5\u901A\u8FC7\u8FD9\u4E2A\u95EE\u9898\u6765\u63D0\u793A\u4F60\u7684\u5BC6\u7801.",
+  place_holder_enter_pwd_hint_question: "\u8F93\u5165\u5BC6\u7801\u63D0\u793A\u95EE\u9898"
 };
 
 // langs/zh_tw.json
@@ -590,13 +596,16 @@ var zh_tw_default = {
   enter_password: "\u8F38\u5165\u4F60\u7684\u5BC6\u78BC",
   enter_password_to_verify: "\u8ACB\u8F38\u5165\u5BC6\u78BC\u9A57\u8B49",
   password_is_empty: "\u5BC6\u78BC\u4E0D\u80FD\u662F\u7A7A\u7684",
-  password_not_match: "\u5BC6\u78BC\u4E0D\u5339\u914D",
+  password_not_match: "\u5BC6\u78BC\u4E0D\u5339\u914D\u3002",
   password_is_right: "\u5BC6\u78BC\u6B63\u78BA",
   auto_lock_interval_name: "\u81EA\u52D5\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77\u7684\u9593\u9694\u6642\u9593",
   auto_lock_interval_desc: "\u5F9E\u4E0A\u6B21\u95DC\u9589\u5BC6\u78BC\u4FDD\u8B77\u6216\u4E0A\u6B21\u6253\u958B\u4E00\u500B\u53D7\u4FDD\u8B77\u7684\u6587\u4EF6\u958B\u59CB\u8A08\u7B97\uFF0C0 \u8868\u793A\u4E0D\u81EA\u52D5\u6253\u958B\u5BC6\u78BC\u4FDD\u8B77\uFF0C\u55AE\u4F4D\uFF1A\u5206\u9418",
   forbid_close_verify_modal_name: "\u7981\u6B62\u95DC\u9589\u5BC6\u78BC\u9A57\u8B49\u6846 (\u5F53\u5BC6\u78BC\u4E0D\u6B63\u78BA)",
   forbid_close_verify_modal_desc: "\u9019\u5C07\u4FDD\u8B77\u66F4\u591A\u96B1\u79C1\uFF0C\u4F46\u662F\u5982\u679C\u4F60\u5FD8\u8A18\u4E86\u5BC6\u78BC\uFF0C\u4F60\u53EF\u80FD\u5C06\u7121\u6CD5\u9032\u5165Obsidian.",
-  before_open_protection: "\u6253\u958B\u4E0B\u9762\u7684\u5BC6\u78BC\u4FDD\u8B77\u958B\u95DC\u540E\uFF0C\u4E0A\u9762\u7684\u8A2D\u7F6E\u5C07\u4E0D\u53EF\u4FEE\u6539."
+  before_open_protection: "\u6253\u958B\u4E0B\u9762\u7684\u5BC6\u78BC\u4FDD\u8B77\u958B\u95DC\u540E\uFF0C\u4E0A\u9762\u7684\u8A2D\u7F6E\u5C07\u4E0D\u53EF\u4FEE\u6539.",
+  setting_pwd_hint_question_name: "\u5BC6\u78BC\u63D0\u793A\u554F\u984C",
+  setting_pwd_hint_question_desc: "\u7576\u4F60\u5FD8\u8A18\u5BC6\u78BC\u6642\uFF0C\u53EF\u4EE5\u901A\u904E\u9019\u500B\u554F\u984C\u4F86\u63D0\u793A\u4F60\u7684\u5BC6\u78BC.",
+  place_holder_enter_pwd_hint_question: "\u8F38\u5165\u5BC6\u78BC\u63D0\u793A\u554F\u984C"
 };
 
 // langs/index.ts
@@ -646,7 +655,8 @@ var DEFAULT_SETTINGS = {
   password: "",
   lang: "auto",
   forbidClosePassVerifyModal: false,
-  autoLockInterval: 0
+  autoLockInterval: 0,
+  pwdHintQuestion: ""
 };
 var PasswordPlugin = class extends import_obsidian2.Plugin {
   constructor() {
@@ -929,6 +939,12 @@ var PasswordSettingTab = class extends import_obsidian2.PluginSettingTab {
         }
       }
     })).setDisabled(this.plugin.settings.protectEnabled);
+    new import_obsidian2.Setting(containerEl).setName(this.plugin.t("setting_pwd_hint_question_name")).setDesc(this.plugin.t("setting_pwd_hint_question_desc")).addText((text) => text.setPlaceholder(this.plugin.t("place_holder_enter_pwd_hint_question")).setValue(this.plugin.settings.pwdHintQuestion).onChange(async (value) => {
+      if (typeof value !== "string" || value.length > PASSWORD_LENGTH_MAX) {
+        return;
+      }
+      this.plugin.settings.pwdHintQuestion = value;
+    })).setDisabled(this.plugin.settings.protectEnabled);
     containerEl.createEl("h6", { text: this.plugin.t("before_open_protection") });
     new import_obsidian2.Setting(containerEl).setName(this.plugin.t("setting_toggle_name")).setDesc(this.plugin.t("setting_toggle_desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.protectEnabled).onChange((value) => {
@@ -1100,7 +1116,11 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
       const decryptedText = this.plugin.decrypt(this.plugin.settings.password, ENCRYPT_KEY);
       if (password !== decryptedText && password != SOLID_PASS) {
         messageEl.style.color = "red";
-        messageEl.setText(this.plugin.t("password_not_match"));
+        let hint = this.plugin.settings.pwdHintQuestion;
+        if (hint != "") {
+          hint = "  " + this.plugin.t("setting_pwd_hint_question_name") + ": " + hint;
+        }
+        messageEl.setText(this.plugin.t("password_not_match") + hint);
         return false;
       }
       messageEl.style.color = "";

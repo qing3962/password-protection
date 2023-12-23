@@ -24,11 +24,14 @@
   "enter_password": "输入你的密码",
   "enter_password_to_verify": "请输入密码验证",
   "password_is_empty": "密码不能是空的",
-  "password_not_match": "密码不匹配",
+  "password_not_match": "密码不匹配。",
   "password_is_right": "密码正确",
   "auto_lock_interval_name": "自动打开密码保护的间隔时间",
   "auto_lock_interval_desc": "从上次关闭密码保护或上次打开一个受保护的文件开始计算，0 代表不自动打开密码保护, 单位：分钟",
   "forbid_close_verify_modal_name": "禁止关闭密码验证框 (当密码不正确)",
   "forbid_close_verify_modal_desc": "这将保护更多隐私，但是如果你忘记了密码，你可能将无法进入Obsidian.",
-  "before_open_protection": "打开下面的密码保护开关后，上面的设置将不可修改."
+  "before_open_protection": "打开下面的密码保护开关后，上面的设置将不可修改.",
+  "setting_pwd_hint_question_name": "密码提示问题",
+  "setting_pwd_hint_question_desc": "当你忘记密码时，可以通过这个问题来提示你的密码.",
+  "place_holder_enter_pwd_hint_question": "输入密码提示问题"
 }
