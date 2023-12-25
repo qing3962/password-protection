@@ -1,4 +1,6 @@
-# Password Protection Plugin
+English | [中文](#中文版说明)  
+
+# Password-Protection-Plugin
 
 ## Purpose
 
@@ -63,8 +65,9 @@ Contributions to the password-protection plugin are welcome!
 This project is licensed under the [MIT License](LICENSE).
 
 ------  
+中文 | [English](#Password-Protection-Plugin)  
 
-# 中文版说明 (For chinese)
+# 中文版说明
 
 ## 目的
 
