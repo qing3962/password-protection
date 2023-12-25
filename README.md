@@ -1,5 +1,7 @@
 English | [中文](#中文版说明)  
 
+![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22password-protection%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)  
+
 # Manual
 
 ## Purpose
@@ -129,10 +131,6 @@ This project is licensed under the [MIT License](LICENSE).
 ## 许可证
 
 本插件使用 MIT 许可证。 [MIT License](LICENSE)
-
-------  
-
-![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22password-protection%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)  
 
 ------  
 
