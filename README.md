@@ -1,10 +1,10 @@
 English | [中文](#中文版说明)  
 
-# Password-Protection-Plugin
+# Manual
 
 ## Purpose
 
-I developed this plugin to prevent my girl-friend from peeking my private notes or diaries.  
+I developed this plugin to prevent my girl-friend from peeking my private notes or diaries in the Obsidian.  
 
 ## What does this plugin do?
 
@@ -65,13 +65,13 @@ Contributions to the password-protection plugin are welcome!
 This project is licensed under the [MIT License](LICENSE).
 
 ------  
-中文 | [English](#Password-Protection-Plugin)  
+中文 | [English](#Manual)  
 
 # 中文版说明
 
 ## 目的
 
-我开发这个插件的目的是，防止我的女朋友偷看我的私人笔记或日记。  
+我开发这个插件的目的是，防止我的女朋友偷看 Obsidian 中我的私人笔记或日记。  
 
 ## 这个插件做了什么？
 
