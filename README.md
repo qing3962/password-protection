@@ -125,7 +125,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 许可证
 
-本插件使用 MIT 许可证。 [MIT License](LICENSE)
+本插件使用 MIT 许可证： [MIT License](LICENSE)
 
 ------  
 
