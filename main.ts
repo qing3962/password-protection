@@ -16,6 +16,8 @@ interface PasswordPluginSettings {
     forbidClosePassVerifyModal: boolean;
     autoLockInterval: number;
     pwdHintQuestion: string;
+    isLastVerifyPasswordCorrect: boolean;
+    timeOnUnload: moment.Moment | number;
 }
 
 const DEFAULT_SETTINGS: PasswordPluginSettings = {
@@ -26,6 +28,8 @@ const DEFAULT_SETTINGS: PasswordPluginSettings = {
     forbidClosePassVerifyModal: false,
     autoLockInterval: 0,
     pwdHintQuestion: '',
+    isLastVerifyPasswordCorrect: false,
+    timeOnUnload: 0
 }
 
 export default class PasswordPlugin extends Plugin {
@@ -82,7 +86,13 @@ export default class PasswordPlugin extends Plugin {
             if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
                 if (!this.isVerifyPasswordCorrect) {
                     this.closeLeaves();
-                    this.verifyToClosePasswordProtection();
+
+                    let curTime = moment();
+                    if (curTime.diff(this.settings.timeOnUnload, 'second') <= 2 && this.settings.isLastVerifyPasswordCorrect) {
+                        this.isVerifyPasswordCorrect = true;
+                    } else {
+                        this.verifyToClosePasswordProtection();
+                    }
                 }
             }
         });
@@ -130,7 +140,10 @@ export default class PasswordPlugin extends Plugin {
         }
     }
 
-    onunload() {
+    async onunload() {
+        this.settings.isLastVerifyPasswordCorrect = this.isVerifyPasswordCorrect;
+        this.settings.timeOnUnload = moment();
+        await this.saveSettings();
     }
 
     autoLockCheck() {

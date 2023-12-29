@@ -656,7 +656,9 @@ var DEFAULT_SETTINGS = {
   lang: "auto",
   forbidClosePassVerifyModal: false,
   autoLockInterval: 0,
-  pwdHintQuestion: ""
+  pwdHintQuestion: "",
+  isLastVerifyPasswordCorrect: false,
+  timeOnUnload: 0
 };
 var PasswordPlugin = class extends import_obsidian2.Plugin {
   constructor() {
@@ -698,7 +700,12 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
         if (!this.isVerifyPasswordCorrect) {
           this.closeLeaves();
-          this.verifyToClosePasswordProtection();
+          let curTime = (0, import_obsidian2.moment)();
+          if (curTime.diff(this.settings.timeOnUnload, "second") <= 2 && this.settings.isLastVerifyPasswordCorrect) {
+            this.isVerifyPasswordCorrect = true;
+          } else {
+            this.verifyToClosePasswordProtection();
+          }
         }
       }
     });
@@ -735,7 +742,10 @@ var PasswordPlugin = class extends import_obsidian2.Plugin {
       this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1e3));
     }
   }
-  onunload() {
+  async onunload() {
+    this.settings.isLastVerifyPasswordCorrect = this.isVerifyPasswordCorrect;
+    this.settings.timeOnUnload = (0, import_obsidian2.moment)();
+    await this.saveSettings();
   }
   autoLockCheck() {
     if (this.settings.protectEnabled && this.isVerifyPasswordCorrect && this.settings.autoLockInterval > 0) {

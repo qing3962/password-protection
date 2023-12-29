@@ -1,12 +1,8 @@
-English | [中文](#中文版说明)  
-
-![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22password-protection%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)  
-
-# Manual
+# Password Protection Plugin
 
 ## Purpose
 
-I developed this plugin to prevent my girl-friend from peeking my private notes or diaries in the Obsidian.  
+I developed this plugin to prevent my girl-friend from peeking my private notes or diaries.  
 
 ## What does this plugin do?
 
@@ -67,13 +63,12 @@ Contributions to the password-protection plugin are welcome!
 This project is licensed under the [MIT License](LICENSE).
 
 ------  
-中文 | [English](#Manual)  
 
-# 中文版说明
+# 中文版说明 (For chinese)
 
 ## 目的
 
-我开发这个插件的目的是，防止我的女朋友偷看 Obsidian 中我的私人笔记或日记。  
+我开发这个插件的目的是，防止我的女朋友偷看我的私人笔记或日记。  
 
 ## 这个插件做了什么？
 
@@ -131,6 +126,10 @@ This project is licensed under the [MIT License](LICENSE).
 ## 许可证
 
 本插件使用 MIT 许可证。 [MIT License](LICENSE)
+
+------  
+
+![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22password-protection%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)  
 
 ------  
 
