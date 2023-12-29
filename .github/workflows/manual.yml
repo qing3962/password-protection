@@ -3,9 +3,7 @@
 name: Manual workflow
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 env:
   PLUGIN_NAME: password-protection # Change this to match the id of your plugin.
