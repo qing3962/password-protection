@@ -1113,7 +1113,7 @@ var VerifyPasswordModal = class extends import_obsidian2.Modal {
     });
     const pwConfirmChecker = () => {
       if (pwInputEl.value == "") {
-        messageEl.style.color = "red";
+        messageEl.style.color = "yellow";
         messageEl.setText(this.plugin.t("password_is_empty"));
         return false;
       }

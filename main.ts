@@ -642,7 +642,7 @@ class VerifyPasswordModal extends Modal {
         const pwConfirmChecker = () => {
             // is either input and confirm field empty?
             if (pwInputEl.value == '') {
-                messageEl.style.color = 'red';
+                messageEl.style.color = 'yellow';
                 messageEl.setText(this.plugin.t("password_is_empty"));
                 return false;
             }
