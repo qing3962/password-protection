@@ -1,8 +1,8 @@
-# Password Protection Plugin
+# Obsidian Password Protection Plugin
 
 ## Purpose
 
-I developed this plugin to prevent my girl-friend from peeking my private notes or diaries.  
+I developed this plugin for the Obsidian to prevent my girl-friend from peeking my private notes or diaries.  
 
 ## What does this plugin do?
 
