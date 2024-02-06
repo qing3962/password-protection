@@ -1,7 +1,7 @@
 {
 	"name": "password-protection",
-	"version": "1.1.24",
-	"description": "Protect your private notes and diary with a password, no encrypt, no decrypt.",
+	"version": "1.1.25",
+	"description": "Lock and protect your private notes and diary with a password, no encrypt, no decrypt.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
