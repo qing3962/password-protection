@@ -69,7 +69,6 @@ Contributions to the password-protection plugin are welcome!
 This project is licensed under the [MIT License](LICENSE).
 
 ------  
-中文 | [English](#Obsidian Password Protection Plugin)  
 
 # 中文版说明
 
