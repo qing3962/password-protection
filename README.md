@@ -1,5 +1,5 @@
 English | [中文](#中文版说明)  
-
+comment 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22password-protection%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)  
 
 ------  
@@ -8,27 +8,27 @@ English | [中文](#中文版说明)
 
 ## Purpose
 
-I developed this plugin for the Obsidian to prevent my girl-friend from peeking my private notes or diaries in the Obsidian.  
+I developed this plugin for the Obsidian to prevent my girlfriend from peeking at my private notes/diaries in Obsidian.  
 
 ## What does this plugin do?
 
-No encrypt, no decrypt, This plugin doesn't modify your notes, it will not do anything with your notes, only lock the obsidian.  
+No encrypt, no decrypt. This plugin doesn't modify your notes, it will not do anything with your notes, only lock them.  
 
-When you launch the Obsidian:
+When you launch Obsidian:
 
-If the protected folder you set is the root folder (/), a password verification box will present, enter the correct password, you can just open a note.  
+If the protected folder you set is the root folder (/), a password verification box will be presented. Enter the correct password and you can open a note.  
 
-If the protected folder you set is a sub-folder (/xxx), when you open a note that located in the sub-folder, a password verification box will pop up, enter the correct password, you can open the note.  
+If the protected folder you set is a sub-folder (/xxx), when you open a note that located in the sub-folder, a password verification box will pop up. Enter the correct password to open the note.  
 
 Once you have entered the correct password, you will not be asked to enter it again when opening other protected notes.  
 
 If you want to lock password protection again, you may invoke the command panel, type "pass", find the command - "Password Protection: Lock", run it, when you open a protected note, the password verification box will pop up again.  
 
-In Obsidian for Windows, a Password Protection Button locates on the left-bar. Click on it to execute locking or unlocking action.  
+In Obsidian for desktop, a Password Protection Button is on the sidebar. Click on it to lock or unlock.  
 
-## New feature  
+## Changelog
 
-- version: 1.1.12 (8/16/2023)
+- version 1.1.12 (8/16/2023)
 
 1. Add the interval setting of Auto-lock password protection. If you set a value greater than 0, when time elapse certain minutes from last unlocked protection or last opened a protected file，the password verify box will pop up again as soon as you open a new protected file.  
 
@@ -36,11 +36,11 @@ In Obsidian for Windows, a Password Protection Button locates on the left-bar. C
 
 ## The systems have been tested:
 
-I have tested the plugin on Windows and iOS (iPhone、iPad) with Obsidian in 2023.5.
+I have tested the plugin on Windows and iOS (iPhone, iPad) with Obsidian 2023.5.
 
 ## Installation, Configruation, and Usage
 
-If you cann't install the plugin from community plugin market, you can step by step follow this:
+If you can't install the plugin from the community plugin market, you can try this:
  
 1. Download the latest release: password-protection-1.x.x.zip, this package in cross-platform have been tested in Windows and iOS; [Download](https://github.com/qing3962/password-protection/releases).
 
@@ -54,7 +54,7 @@ If you cann't install the plugin from community plugin market, you can step by s
 
 6. Enable the button of password protection, a Password Input Modal will popup, enter your password, click "OK".
 
-7. the password protection plugin start work, when you open a note in the protected path you set, a Password Verify Modal will popup, enter the right password, you just open the note.  
+7. The password protection plugin start working, when you open a note in the protected path you set, a Password Verify Modal will popup, enter the right password, you just open the note.  
 
 ## Contributing
 
