@@ -38,7 +38,7 @@ In Obsidian for desktop, a Password Protection Button is on the sidebar. Click o
 
 I have tested the plugin on Windows and iOS (iPhone, iPad) with Obsidian 2023.5.
 
-## Installation, Configruation, and Usage
+## Installation, Configuration, and Usage
 
 If you can't install the plugin from the community plugin market, you can try this:
  
