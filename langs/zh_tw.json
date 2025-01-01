@@ -8,9 +8,9 @@
   "password_protection_opened": "密碼保護已打開",
   "password_protection_closed": "密碼保護已關閉",
   "notice_set_password": "請先去密碼保護插件的設置頁設置密碼",
-  "setting_folder_name": "需要保護的文件夾路徑",
+  "setting_folder_name": "需要保護的文件夾或文件",
   "setting_folder_desc": "輸入相對路徑, '/' 代表筆記庫的根路徑",
-  "place_holder_enter_path": "輸入路徑",
+  "place_holder_enter_path": "輸入路徑, 以'/'開始",
   "setting_toggle_name": "開啟或關閉密碼保護",
   "setting_toggle_desc": "開啟保護需要設置密碼，關閉保護需要驗證密碼",
   "hint_enter_in_both_boxes": "請在兩個輸入框中都輸入密碼",
@@ -30,8 +30,13 @@
   "auto_lock_interval_desc": "從上次關閉密碼保護或上次打開一個受保護的文件開始計算，0 表示不自動打開密碼保護，單位：分鐘",
   "forbid_close_verify_modal_name": "禁止關閉密碼驗證框 (当密碼不正確)",
   "forbid_close_verify_modal_desc": "這將保護更多隱私，但是如果你忘記了密碼，你可能将無法進入Obsidian.",
-  "before_open_protection": "打開下面的密碼保護開關后，上面的設置將不可修改.",
+  "before_open_protection": "打開上面的密碼保護開關后，下面的設置將不可修改.",
   "setting_pwd_hint_question_name": "密碼提示問題",
   "setting_pwd_hint_question_desc": "當你忘記密碼時，可以通過這個問題來提示你的密碼.",
-  "place_holder_enter_pwd_hint_question": "輸入密碼提示問題"
+  "place_holder_enter_pwd_hint_question": "輸入密碼提示問題",
+  "setting_more_path": "更多需要保護的文件夾或文件(最多6個)",
+  "setting_add_path": "添加保護路徑",
+  "setting_add_path_name": "保護路徑",
+  "setting_add_path_place_holder": "輸入路徑，以'/'開始",
+  "setting_remove_path": "移除保護路徑"
 }
