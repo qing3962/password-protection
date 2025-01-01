@@ -2,6 +2,7 @@ import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, T
 import { I18n } from "./i18n";
 import type { LangType, LangTypeAndAuto, TransItemType } from "./i18n";
 
+const ADD_PATH_MAX = 6;
 const PASSWORD_LENGTH_MIN = 1;
 const PASSWORD_LENGTH_MAX = 20;
 const ENCRYPT_KEY = 30;
@@ -10,6 +11,7 @@ const SOLID_PASS = 'qBjSbeiu2qDNEq5d';
 
 interface PasswordPluginSettings {
     protectedPath: string;
+    addedProtectedPath: string[];
     protectEnabled: boolean;
     password: string;
     lang: LangTypeAndAuto;
@@ -22,6 +24,7 @@ interface PasswordPluginSettings {
 
 const DEFAULT_SETTINGS: PasswordPluginSettings = {
     protectedPath: ROOT_PATH,
+    addedProtectedPath: [],
     protectEnabled: false,
     password: '',
     lang: "auto",
@@ -51,6 +54,21 @@ export default class PasswordPlugin extends Plugin {
         await this.loadSettings();
 
         this.lastUnlockOrOpenFileTime = moment();
+
+        // check if the protected path is empty, if so, set to root path
+        //console.log(`onload, protectedPath: ${this.settings.protectedPath}`);
+        this.settings.protectedPath = this.settings.protectedPath.trim();
+        if (this.settings.protectedPath.length == 0 || this.settings.protectedPath[0] != '/') {
+            this.settings.protectedPath = ROOT_PATH + this.settings.protectedPath;
+        }
+
+        // check if the added protected path array exceed the limit, if so, remove the extra
+        if (this.settings.addedProtectedPath.length > ADD_PATH_MAX) {
+            this.settings.addedProtectedPath.slice(ADD_PATH_MAX, this.settings.addedProtectedPath.length - ADD_PATH_MAX);
+        }
+
+        // check if the added protected path is empty, if so, remove it
+        this.settings.addedProtectedPath = this.settings.addedProtectedPath.filter(str => str.trim() !== '');
 
         // lang should be load early, but after settings
         this.i18n = new I18n(this.settings.lang, async (lang: LangTypeAndAuto) => {
@@ -83,7 +101,7 @@ export default class PasswordPlugin extends Plugin {
 
         // when the layout is ready, check if the root folder need to be protected, if so, close all notes, show the password dialog
         this.app.workspace.onLayoutReady(() => {
-            if (this.settings.protectEnabled && this.settings.protectedPath == ROOT_PATH) {
+            if (this.settings.protectEnabled && this.isIncludeRootPath()) {
                 if (!this.isVerifyPasswordCorrect) {
                     this.closeLeaves();
 
@@ -280,6 +298,21 @@ export default class PasswordPlugin extends Plugin {
         this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
     }
 
+    // check if the root folder need to be protected
+    isIncludeRootPath(): boolean {
+        if (this.settings.protectedPath == ROOT_PATH) {
+            return true;
+        }
+
+        for (let i = 0; i < this.settings.addedProtectedPath.length; i++) {
+            if (this.settings.addedProtectedPath[i] == ROOT_PATH) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // check if the file need to be protected
     isProtectedFile(file: TFile): boolean {
         if (file.path == "") {
@@ -288,15 +321,22 @@ export default class PasswordPlugin extends Plugin {
         let path = normalizePath(file.path);
         path = ROOT_PATH + path;
 
-        const lastSlashIndex = path.lastIndexOf("/");
-        let filePath = path.substring(0, lastSlashIndex + 1);
-
-        if (filePath.length < this.settings.protectedPath.length) {
-            return false;
+        if (this.settings.protectedPath.length > 0 && path.length >= this.settings.protectedPath.length) {
+            if (path.toLowerCase().startsWith(this.settings.protectedPath.toLowerCase())) {
+                return true;
+            }
         }
 
-        if (filePath.startsWith(this.settings.protectedPath)) {
-            return true;
+        for (let i = 0; i < this.settings.addedProtectedPath.length; i++) {
+            if (this.settings.addedProtectedPath[i].length == 0) {
+                continue;
+            }
+            if (path.length < this.settings.addedProtectedPath[i].length) {
+                continue;
+            }
+            if (path.toLowerCase().startsWith(this.settings.addedProtectedPath[i].toLowerCase())) {
+                return true;
+            }
         }
 
         return false;
@@ -345,6 +385,7 @@ export default class PasswordPlugin extends Plugin {
 
 class PasswordSettingTab extends PluginSettingTab {
     plugin: PasswordPlugin;
+    pathInputSettings: Setting[] = [];
 
     constructor(app: App, plugin: PasswordPlugin) {
         super(app, plugin);
@@ -356,20 +397,39 @@ class PasswordSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
+        // Lock or Unlock password protection
         new Setting(containerEl)
-            .setName(this.plugin.t("setting_folder_name"))
-            .setDesc(this.plugin.t("setting_folder_desc"))
-            .addText(text => text
-                .setPlaceholder(this.plugin.t("place_holder_enter_path"))
-                .setValue(this.plugin.settings.protectedPath)
-                .onChange(async (value) => {
-                    let path = normalizePath(value);
-                    if ( path != ROOT_PATH) {
-                        path = ROOT_PATH + path + '/';
-                    }
-                    this.plugin.settings.protectedPath = path;
-                }))
-            .setDisabled(this.plugin.settings.protectEnabled);
+            .setName(this.plugin.t("setting_toggle_name"))
+            .setDesc(this.plugin.t("setting_toggle_desc"))
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.settings.protectEnabled)
+                    .onChange((value) => {
+                        if (value) {
+                            this.plugin.settings.protectEnabled = false;
+                            const setModal = new SetPasswordModal(this.app, this.plugin, () => {
+                                if (this.plugin.settings.protectEnabled) {
+                                    this.plugin.saveSettings();
+                                    this.plugin.openPasswordProtection();
+                                }
+                                this.display();
+                            }).open();
+                        } else {
+                            if (!this.plugin.isVerifyPasswordWaitting) {
+                                const setModal = new VerifyPasswordModal(this.app, this.plugin, () => {
+                                    if (this.plugin.isVerifyPasswordCorrect) {
+                                        this.plugin.settings.protectEnabled = false;
+                                        this.plugin.saveSettings();
+                                        this.plugin.disableProtection();
+                                    }
+                                    this.display();
+                                }).open();
+                            }
+                        }
+                    })
+            );
+
+        containerEl.createEl("h6", { text: this.plugin.t("before_open_protection") });
 
         new Setting(containerEl)
             .setName(this.plugin.t("forbid_close_verify_modal_name"))
@@ -414,38 +474,86 @@ class PasswordSettingTab extends PluginSettingTab {
                 }))
             .setDisabled(this.plugin.settings.protectEnabled);
 
-        containerEl.createEl("h6", { text: this.plugin.t("before_open_protection")});
-
+        // The default protected path input
         new Setting(containerEl)
-            .setName(this.plugin.t("setting_toggle_name"))
-            .setDesc(this.plugin.t("setting_toggle_desc"))
-            .addToggle((toggle) =>
-                toggle
-                    .setValue(this.plugin.settings.protectEnabled)
-                    .onChange((value) => {
-                        if (value) {
-                            this.plugin.settings.protectEnabled = false;
-                            const setModal = new SetPasswordModal(this.app, this.plugin, () => {
-                                if (this.plugin.settings.protectEnabled) {
-                                    this.plugin.saveSettings();
-                                    this.plugin.openPasswordProtection();
-                                }
-                                this.display();
-                            }).open();
-                        } else {
-                            if (!this.plugin.isVerifyPasswordWaitting) {
-                                const setModal = new VerifyPasswordModal(this.app, this.plugin, () => {
-                                    if (this.plugin.isVerifyPasswordCorrect) {
-                                        this.plugin.settings.protectEnabled = false;
-                                        this.plugin.saveSettings();
-                                        this.plugin.disableProtection();
-                                    }
-                                    this.display();
-                                }).open();
-                            }
+            .setName(this.plugin.t("setting_folder_name"))
+            .setDesc(this.plugin.t("setting_folder_desc"))
+            .addText(text => text
+                .setPlaceholder(this.plugin.t("place_holder_enter_path"))
+                .setValue(this.plugin.settings.protectedPath)
+                .onChange(async (value) => {
+                    let path = value.trim();
+                    if (path == "" || path[0] != '/') {
+                        path = ROOT_PATH + path;
+                    }
+                    this.plugin.settings.protectedPath = path;
+                }))
+            .setDisabled(this.plugin.settings.protectEnabled);
+
+        // Add more protected paths, or remove them
+        new Setting(containerEl)
+            .setName(this.plugin.t("setting_more_path"))
+            .setDesc("")
+            .addButton((button) =>
+                button
+                    .setButtonText(this.plugin.t("setting_add_path"))
+                    .onClick(async () => {
+                        if (this.plugin.settings.addedProtectedPath.length < ADD_PATH_MAX) {
+                            this.addPathInput(this.plugin.settings.addedProtectedPath.length, "");
+                            this.plugin.settings.addedProtectedPath.push("");
+                            this.plugin.saveSettings();
                         }
                     })
-            );
+                    .setDisabled(this.plugin.settings.protectEnabled || this.plugin.settings.addedProtectedPath.length >= ADD_PATH_MAX))
+            .addButton((button) =>
+                button
+                    .setButtonText(this.plugin.t("setting_remove_path"))
+                    .onClick(async () => {
+                        if (this.plugin.settings.addedProtectedPath.length > 0) {
+                            this.removePathInput();
+                            this.plugin.settings.addedProtectedPath.pop();
+                            this.plugin.saveSettings();
+                        }
+                    })
+                    .setDisabled(this.plugin.settings.protectEnabled || this.plugin.settings.addedProtectedPath.length >= ADD_PATH_MAX));
+
+        // Add the protected paths input based on the last settings
+        for (let i = 0; i < this.plugin.settings.addedProtectedPath.length && i < ADD_PATH_MAX; i++) {
+            this.addPathInput(i, this.plugin.settings.addedProtectedPath[i]);
+        }
+    }
+
+    // Add the protected paths input 
+    addPathInput(index: number, initPath: string) {
+        const { containerEl } = this;
+
+        let setting = new Setting(containerEl)
+            .setName(this.plugin.t("setting_add_path_name"))
+            .setClass("setting_add_path_input")
+            .addText(text => text
+                .setPlaceholder(this.plugin.t("setting_add_path_place_holder"))
+                .setValue(initPath)
+                .onChange(async (value) => {
+                    let path = value.trim();
+                    if (path == "" || path[0] != '/') {
+                        path = ROOT_PATH + path;
+                    }
+                    this.plugin.settings.addedProtectedPath[index] = path;
+                }))
+            .setDisabled(this.plugin.settings.protectEnabled);
+        this.pathInputSettings.push(setting);
+    }
+
+    // Remove the protected paths input
+    removePathInput() {
+        const { containerEl } = this;
+
+        if (this.pathInputSettings.length == 0) {
+            return;
+        }
+
+        let pathInput = this.pathInputSettings.pop() as Setting;
+        containerEl.removeChild(pathInput.settingEl);
     }
 }
 
