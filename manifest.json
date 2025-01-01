@@ -1,7 +1,7 @@
 {
 	"id": "password-protection",
 	"name": "Password Protection",
-	"version": "1.1.26",
+	"version": "1.1.27",
 	"minAppVersion": "0.15.0",
 	"description": "Lock and protect your private notes and diary with a password, no encrypt, no decrypt.",
 	"author": "Qing Li",
