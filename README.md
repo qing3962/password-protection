@@ -28,6 +28,12 @@ In Obsidian for desktop, a Password Protection Button is on the sidebar. Click o
 
 ## Changelog
 
+- version 1.1.27 (1/1/2025)
+
+1. Support adding more protected path.
+
+2. Support protecting files as folders are protected.
+
 - version 1.1.12 (8/16/2023)
 
 1. Add the interval setting of Auto-lock password protection. If you set a value greater than 0, when time elapse certain minutes from last unlocked protection or last opened a protected file，the password verify box will pop up again as soon as you open a new protected file.  
