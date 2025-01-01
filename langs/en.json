@@ -8,9 +8,9 @@
   "password_protection_opened": "Password protection is locked!",
   "password_protection_closed": "Password protection is unlocked!",
   "notice_set_password": "Please set the password in the settings page for the Password Protection Plugin first!",
-  "setting_folder_name": "Protected Folder",
-  "setting_folder_desc": "With relative paths, the '/' is the root path of the vault",
-  "place_holder_enter_path": "Enter path",
+  "setting_folder_name": "Protected folder or file",
+  "setting_folder_desc": "With relative path, the '/' is the root path of the vault",
+  "place_holder_enter_path": "Enter path, start with '/'",
   "setting_toggle_name": "Enable/Disable password protection",
   "setting_toggle_desc": "Enable the protection you need to use the password, to disable it need to verify your password.",
   "hint_enter_in_both_boxes": "Please enter your password in both boxes.",
@@ -30,8 +30,13 @@
   "auto_lock_interval_desc": "The number of minutes to wait before auto-locking since the protected file was opened.",
   "forbid_close_verify_modal_name": "Disable closing the password verify box if the password isn't correct",
   "forbid_close_verify_modal_desc": "This will allow more privacy, but if you forgot your password, you may not be able to view your notes.",
-  "before_open_protection": "Turn on the switch below to enable password protection, and disable the options above.",
+  "before_open_protection": "Turn on the above switch to enable password protection, and disable the below options.",
   "setting_pwd_hint_question_name": "Password prompt",
   "setting_pwd_hint_question_desc": "Please type a question to help you remember your password.",
-  "place_holder_enter_pwd_hint_question": "Password prompt question"
+  "place_holder_enter_pwd_hint_question": "Password prompt question",
+  "setting_more_path": "More folders or files to be protected (up to 6)",
+  "setting_add_path": "Add protected path",
+  "setting_add_path_name": "Protected path",
+  "setting_add_path_place_holder": "Enter path, start with the '/'",
+  "setting_remove_path": "Remove protected path"
 }
