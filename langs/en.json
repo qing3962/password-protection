@@ -12,7 +12,7 @@
   "setting_folder_desc": "With relative path, the '/' is the root path of the vault",
   "place_holder_enter_path": "Enter path, start with '/'",
   "setting_toggle_name": "Enable/Disable password protection",
-  "setting_toggle_desc": "Enable the protection you need to use the password, to disable it need to verify your password.",
+  "setting_toggle_desc": "To enable password protection you will set your password, to disable it you will need to verify your password.",
   "hint_enter_in_both_boxes": "Please enter your password in both boxes.",
   "hint_password_must_match": "Passwords must match.",
   "hint_password_length": "Password must contain valid characters and must be 1-20 characters long.",
