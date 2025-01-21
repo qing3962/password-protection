@@ -14,7 +14,7 @@
   "setting_toggle_name": "Activar/Desactivar protección con contraseña",
   "setting_toggle_desc": "Para activar protección con contraseña, establecerás una contraseña, y para desactivar, tienes que verificarla.",
   "hint_enter_in_both_boxes": "Introduzca la contraseña en ambas casillas.",
-  "hint_password_must_match": "Contraseñas teinen que coincidar.",
+  "hint_password_must_match": "Contraseñas tienen que coincidir.",
   "hint_password_length": "Contraseña tiene que usar caracteres válidos y contener 1-20 caracteres.",
   "hint_password_valid_character": "Contraseña contiene caracteres inválidos.",
   "set_password_title": "Introduzca una contraseña para proteger una carpeta",
@@ -23,8 +23,8 @@
   "verify_password": "Verifique Contraseña",
   "enter_password": "Introduce la contraseña",
   "enter_password_to_verify": "Por favor, introduce la contraseña para desbloquear.",
-  "password_is_empty": "Contraseña vacío.",
-  "password_not_match": "Contraseñas no coincidan.",
+  "password_is_empty": "Contraseña vacía.",
+  "password_not_match": "Contraseñas no coinciden.",
   "password_is_right": "Contraseña correcta.",
   "auto_lock_interval_name": "Bloqueo Automático",
   "auto_lock_interval_desc": "El número de minutos para esperar antes de bloquear automático desde que se abrió la nota protegido.",
@@ -37,6 +37,6 @@
   "setting_more_path": "Más carpetas o archivos a proteger (hasta 6)",
   "setting_add_path": "Añadir ruta protegida",
   "setting_add_path_name": "Ruta protegida",
-  "setting_add_path_place_holder": "Introducir ruta, empiece con '/'",
+  "setting_add_path_place_holder": "Introducir ruta, empieza con '/'",
   "setting_remove_path": "Eliminar ruta protegida"
 }
