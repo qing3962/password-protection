@@ -10,15 +10,31 @@ const ROOT_PATH = normalizePath("/");
 const SOLID_PASS = 'qBjSbeiu2qDNEq5d';
 
 interface PasswordPluginSettings {
+    // the protected path: the default value is root path
     protectedPath: string;
+
+    // more protected paths 
     addedProtectedPath: string[];
+
+    // if the password protection is enabled
     protectEnabled: boolean;
+
+    // the password, it will be encrypted and saved
     password: string;
+
+    // the language type, it can be 'auto' or a specific language code
     lang: LangTypeAndAuto;
-    forbidClosePassVerifyModal: boolean;
+
+    // when the auto lock interval is set, it will auto lock the password protection after the interval
     autoLockInterval: number;
+
+    // the password hint question, it will be shown when the password is not correct
     pwdHintQuestion: string;
+
+    // if the last verify password is correct, it will be used to determine if the password protection should be closed
     isLastVerifyPasswordCorrect: boolean;
+
+    // close the obsidian and open it again, if the time difference is less than 2 seconds, it will be considered as the last verify password is correct
     timeOnUnload: moment.Moment | number;
 }
 
@@ -28,7 +44,6 @@ const DEFAULT_SETTINGS: PasswordPluginSettings = {
     protectEnabled: false,
     password: '',
     lang: "auto",
-    forbidClosePassVerifyModal: false,
     autoLockInterval: 0,
     pwdHintQuestion: '',
     isLastVerifyPasswordCorrect: false,
@@ -40,8 +55,6 @@ export default class PasswordPlugin extends Plugin {
     isVerifyPasswordWaitting: boolean = false;
     isVerifyPasswordCorrect: boolean = false;
     lastUnlockOrOpenFileTime: moment.Moment | null = null;
-    startupFile: TFile[] = [];
-    isLayoutReady: boolean = true;
 
     passwordRibbonBtn: HTMLElement;
     i18n: I18n;
@@ -56,7 +69,6 @@ export default class PasswordPlugin extends Plugin {
         this.lastUnlockOrOpenFileTime = moment();
 
         // check if the protected path is empty, if so, set to root path
-        //console.log(`onload, protectedPath: ${this.settings.protectedPath}`);
         this.settings.protectedPath = this.settings.protectedPath.trim();
         if (this.settings.protectedPath.length == 0 || this.settings.protectedPath[0] != '/') {
             this.settings.protectedPath = ROOT_PATH + this.settings.protectedPath;
@@ -77,55 +89,42 @@ export default class PasswordPlugin extends Plugin {
         });
 
         // This creates an icon in the left ribbon.
-        if (this.settings.protectEnabled) {
-            this.passwordRibbonBtn = this.addRibbonIcon('unlock', this.t("close_password_protection"), (evt: MouseEvent) => {
-                this.switchPasswordProtection();
-            });
-        } else {
-            this.passwordRibbonBtn = this.addRibbonIcon('lock', this.t("open_password_protection"), (evt: MouseEvent) => {
-                this.switchPasswordProtection();
-            });
-        }
+        this.passwordRibbonBtn = this.addRibbonIcon('lock', this.t("open_password_protection"), (evt: MouseEvent) => {
+            this.openPasswordProtection();
+        });
 
         // This adds a simple command that can be triggered anywhere
         this.addCommand({
             id: 'Open password protection',
             name: this.t("open"),
             callback: () => {
-                this.openPasswordProtection();
+                this.enablePasswordProtection();
             }
         });
 
-        // This adds a settings tab so the user can configure various aspects of the plugin
+        // This adds a settings tab so that the user can configure various aspects of the plugin
         this.addSettingTab(new PasswordSettingTab(this.app, this));
 
-        // when the layout is ready, check if the root folder need to be protected, if so, close all notes, show the password dialog
+        // when the layout is ready, check if the root folder need to be protected, if so, show the password dialog
         this.app.workspace.onLayoutReady(() => {
             if (this.settings.protectEnabled && this.isIncludeRootPath()) {
                 if (!this.isVerifyPasswordCorrect) {
-                    this.closeLeaves();
-
                     let curTime = moment();
                     if (curTime.diff(this.settings.timeOnUnload, 'second') <= 2 && this.settings.isLastVerifyPasswordCorrect) {
                         this.isVerifyPasswordCorrect = true;
                     } else {
-                        this.verifyToClosePasswordProtection();
+                        this.verifyPasswordProtection();
                     }
                 }
             }
         });
 
-        // when the file opened, check if it need to be protected, if so, close it, and show the password dialog
+        // when the file opened, check if it need to be protected, if so, show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
                 this.autoLockCheck();
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
-                    // firstly cache the file if startuping, close the file, then show the password dialog
-                    if (this.isLayoutReady && this.isVerifyPasswordWaitting) {
-                        this.startupFile.push(file);
-                    }
-                    this.closeLeave(file);
-                    this.closePasswordProtection(file);
+                    this.verifyPasswordProtection();
                 }
                 // update the time of last open file, the file may be protected and may be not.
                 if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
@@ -142,7 +141,7 @@ export default class PasswordPlugin extends Plugin {
                     this.autoLockCheck();
                     if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect) {
                         // show the password dialog
-                        this.verifyToClosePasswordProtection();
+                        this.verifyPasswordProtection();
                     }
                     // update the time of last search view actived.
                     if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
@@ -169,39 +168,7 @@ export default class PasswordPlugin extends Plugin {
             let curTime = moment();
             if (curTime.diff(this.lastUnlockOrOpenFileTime, 'minute') >= this.settings.autoLockInterval) {
                 this.isVerifyPasswordCorrect = false;
-            }
-        }
-    }
-
-    // open note
-    async openLeave(file: TFile) {
-        let leaf = this.app.workspace.getLeaf(false);
-        if (leaf != null) {
-            leaf.openFile(file);
-        }
-    }
-
-    // close a note
-    async closeLeave(file: TFile) {
-        let leaves: WorkspaceLeaf[] = [];
-
-        this.app.workspace.iterateAllLeaves((leaf) => {
-            leaves.push(leaf);
-        });
-
-        const emptyLeaf = async (leaf: WorkspaceLeaf): Promise<void> => {
-            leaf.setViewState({ type: 'empty' });
-        }
-
-        for (const leaf of leaves) {
-            if (leaf != null && leaf.view instanceof FileView) {
-                if (leaf.view.file != null) {
-                    if (leaf.view.file.path == file.path) {
-                        await emptyLeaf(leaf);
-                        leaf.detach();
-                        break;
-                    }
-                }
+                this.verifyPasswordProtection();
             }
         }
     }
@@ -229,20 +196,19 @@ export default class PasswordPlugin extends Plugin {
         }
     }
 
-    // open or close password protection
-    switchPasswordProtection() {
-        if (this.settings.protectEnabled) {
-            if (!this.isVerifyPasswordCorrect) {
-                this.verifyToClosePasswordProtection();
-            } else {
-                this.openPasswordProtection();
-            }
+    // enable password protection
+    enablePasswordProtection() {
+        if (!this.settings.protectEnabled) {
+            new Notice(this.t("notice_set_password"));
         } else {
-            this.openPasswordProtection();
+            if (this.isVerifyPasswordCorrect) {
+                this.isVerifyPasswordCorrect = false;
+		this.closeLeaves();
+            }
         }
     }
 
-    // open password protection
+    // open or guide in password protection
     openPasswordProtection() {
         if (!this.settings.protectEnabled) {
             new Notice(this.t("notice_set_password"));
@@ -250,52 +216,20 @@ export default class PasswordPlugin extends Plugin {
             if (this.isVerifyPasswordCorrect) {
                 this.isVerifyPasswordCorrect = false;
             }
-            this.closeLeaves();
-            setIcon(this.passwordRibbonBtn, "unlock");
-            this.passwordRibbonBtn.ariaLabel = this.t("close_password_protection");
-            new Notice(this.t("password_protection_opened"));
+
+            this.verifyPasswordProtection();
         }
     }
 
-    // close password protection
-    closePasswordProtection(file: TFile) {
+    // verify password protection
+    verifyPasswordProtection() {
         if (!this.isVerifyPasswordWaitting) {
             const setModal = new VerifyPasswordModal(this.app, this, () => {
                 if (this.isVerifyPasswordCorrect) {
-                    this.openLeave(file);
-                    setIcon(this.passwordRibbonBtn, "lock");
-                    this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
                     new Notice(this.t("password_protection_closed"));
                 }
             }).open();
         }
-    }
-
-    verifyToClosePasswordProtection() {
-        if (!this.isVerifyPasswordWaitting) {
-            const setModal = new VerifyPasswordModal(this.app, this, () => {
-                if (this.isVerifyPasswordCorrect) {
-                    setIcon(this.passwordRibbonBtn, "lock");
-                    this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
-                    new Notice(this.t("password_protection_closed"));
-                    if (this.isLayoutReady) {
-                        this.isLayoutReady = false;
-                        for (const file of this.startupFile) {
-                            if (file != null) {
-                                this.openLeave(file);
-                            }
-                        }
-                        this.startupFile = [];
-                    }
-                }
-            }).open();
-        }
-    }
-
-    // close password protection
-    disableProtection() {
-        setIcon(this.passwordRibbonBtn, "lock");
-        this.passwordRibbonBtn.ariaLabel = this.t("open_password_protection");
     }
 
     // check if the root folder need to be protected
@@ -409,8 +343,9 @@ class PasswordSettingTab extends PluginSettingTab {
                             this.plugin.settings.protectEnabled = false;
                             const setModal = new SetPasswordModal(this.app, this.plugin, () => {
                                 if (this.plugin.settings.protectEnabled) {
+                                    this.plugin.isVerifyPasswordCorrect = false;
                                     this.plugin.saveSettings();
-                                    this.plugin.openPasswordProtection();
+                                    this.plugin.closeLeaves();
                                 }
                                 this.display();
                             }).open();
@@ -420,7 +355,6 @@ class PasswordSettingTab extends PluginSettingTab {
                                     if (this.plugin.isVerifyPasswordCorrect) {
                                         this.plugin.settings.protectEnabled = false;
                                         this.plugin.saveSettings();
-                                        this.plugin.disableProtection();
                                     }
                                     this.display();
                                 }).open();
@@ -430,18 +364,6 @@ class PasswordSettingTab extends PluginSettingTab {
             );
 
         containerEl.createEl("h6", { text: this.plugin.t("before_open_protection") });
-
-        new Setting(containerEl)
-            .setName(this.plugin.t("forbid_close_verify_modal_name"))
-            .setDesc(this.plugin.t("forbid_close_verify_modal_desc"))
-            .addToggle((toggle) =>
-                toggle
-                    .setValue(this.plugin.settings.forbidClosePassVerifyModal)
-                    .onChange((value) => {
-                        this.plugin.settings.forbidClosePassVerifyModal = value;
-                    })
-            )
-            .setDisabled(this.plugin.settings.protectEnabled);
 
         new Setting(containerEl)
             .setName(this.plugin.t("auto_lock_interval_name"))
@@ -713,13 +635,17 @@ class VerifyPasswordModal extends Modal {
     }
 
     onOpen() {
-        if (this.plugin.settings.protectEnabled && this.plugin.settings.forbidClosePassVerifyModal) {
+        if (this.plugin.settings.protectEnabled) {
             const { modalEl } = this;
             const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
             if (closeButton != null) {
                 closeButton.setAttribute('style', 'display: none;');
             }
         }
+
+        Object.assign(this.app.workspace.containerEl.style, {
+            filter: "blur(8px)",
+        } as CSSStyleDeclaration);
 
         const { contentEl } = this;
         contentEl.empty();
@@ -733,7 +659,6 @@ class VerifyPasswordModal extends Modal {
         const pwInputEl = inputPwContainerEl.createEl('input', { type: 'password', value: '' });
         pwInputEl.placeholder = this.plugin.t("enter_password");
         pwInputEl.style.width = '70%';
-        pwInputEl.focus();
 
         //message modal - to fire if either input is empty
         const messageEl = contentEl.createDiv();
@@ -750,7 +675,7 @@ class VerifyPasswordModal extends Modal {
         const pwConfirmChecker = () => {
             // is either input and confirm field empty?
             if (pwInputEl.value == '') {
-                messageEl.style.color = 'yellow';
+                messageEl.style.color = 'red';
                 messageEl.setText(this.plugin.t("password_is_empty"));
                 return false;
             }
@@ -815,17 +740,25 @@ class VerifyPasswordModal extends Modal {
                     }));
     }
 
+    restoreBlur() {
+        Object.assign(this.app.workspace.containerEl.style, {
+            filter: "blur(0px)",
+        } as CSSStyleDeclaration);
+    }
+
     onClose() {
         this.plugin.isVerifyPasswordWaitting = false;
         const { contentEl } = this;
         contentEl.empty();
-        if (this.plugin.settings.protectEnabled && this.plugin.settings.forbidClosePassVerifyModal) {
+        if (this.plugin.settings.protectEnabled) {
             if (!this.plugin.isVerifyPasswordCorrect) {
                 const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
             } else {
+                this.restoreBlur();
                 this.onSubmit();
             }
         } else {
+            this.restoreBlur();
             this.onSubmit();
         }
     }
