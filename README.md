@@ -12,19 +12,15 @@ I developed this plugin for the Obsidian to prevent my girlfriend from peeking a
 
 ## What does this plugin do?
 
-No encrypt, no decrypt. This plugin doesn't modify your notes, it will not do anything with your notes, only lock them.  
+No encrypt, no decrypt. This plugin doesn't modify your notes, it only lock the Obsidian and ask password to unlock.  
 
-When you launch Obsidian:
+## Settings
 
-If the protected folder you set is the root folder (/), a password verification box will be presented. Enter the correct password and you can open a note.  
-
-If the protected folder you set is a sub-folder (/xxx), when you open a note that located in the sub-folder, a password verification box will pop up. Enter the correct password to open the note.  
-
-Once you have entered the correct password, you will not be asked to enter it again when opening other protected notes.  
-
-If you want to lock password protection again, you may invoke the command panel, type "pass", find the command - "Password Protection: Lock", run it, when you open a protected note, the password verification box will pop up again.  
-
-In Obsidian for desktop, a Password Protection Button is on the sidebar. Click on it to lock or unlock.  
+- "Enable/Disable password protection": you may set your password or use your password to enable/disable lock protection.
+- "Auto-lock": Specify a number of minutes for auto-locking obsidian since the last right password is typed.
+- "Password prompt": Please type a question to help you remember your password.
+- "Protected folder or file": You may type a path for protecting, if you use the '/', the entire vault will be protected.
+- "More folders or files": Add more paths to be protected, e.g. 'mynotes/diarys', up to 6.
 
 ## Changelog
 
@@ -32,13 +28,11 @@ In Obsidian for desktop, a Password Protection Button is on the sidebar. Click o
 
 1. Support adding more protected path.
 
-2. Support protecting files as folders are protected.
+2. Support type filepath protected.
 
 - version 1.1.12 (8/16/2023)
 
 1. Add the interval setting of Auto-lock password protection. If you set a value greater than 0, when time elapse certain minutes from last unlocked protection or last opened a protected file，the password verify box will pop up again as soon as you open a new protected file.  
-
-2. Add the switch setting of prohibit close password verify box, this will provide more protection. If you enable the setting option, the password verify box wouldn’t be able to be closed as soon as it pop up, unless you type right password. Caution: If the protected folder you set is root path (/),  and you forgot your password, you may not be able to enter the Obsidian, because in this case, when the Obsidian launching, a password verification box will pop up and cannot be directly closed.  
 
 ## The systems have been tested:
 
@@ -84,27 +78,21 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 这个插件做了什么？
 
-这个插件不会加密和解密你的笔记，也不会修改你的笔记，它不会对你的笔记做任何事，只会用弹出密码验证框的形式锁定Obsidian。  
+这个插件不会加密和解密你的笔记，也不会修改你的笔记，它只会用弹出密码验证框的形式锁定Obsidian。  
 
-当你每次启动 Obsidian:
+## 设置
 
-如果你设置的受保护路径是根路径（/），你将会看到一个密码验证框，只有输入正确的密码，你才能打开任何一篇笔记。  
-
-如果你设置的受保护路径是子路径（/xxx），当你要打开的笔记位于这个子路径，就会弹出一个密码验证框，只有输入正确的密码，你才能继续打开这篇笔记。  
-
-一旦输入过一次正确的密码，那么再打开其他受保护的笔记时，不会要求再次输入。  
-
-如果你想再次开启保护，可以调出命令面板，输入“pass”，找到命令 - "Password Protection: 打开密码保护"，执行它，那么再要打开受保护的笔记，会再次弹出密码验证框。  
-
-在 Windows 版的 Obsidian 里，左侧的工具栏会出现一个密码保护按钮，点击它也可以执行保护或不保护动作。  
+- "开启或关闭密码保护": 这是一个开关，可以打开或关闭密码保护，会弹出密码输入框让你设置或验证密码.
+- "自动开启密码保护的间隔时间": 一段时间后自动打开密码保护。时间从上次关闭密码保护或上次打开一个受保护的文件开始计算，0 代表不自动开启密码保护, 单位：分钟.
+- "密码提示问题": 如果设置了这一项，当你忘记密码时，可以帮助你回忆起你的密码.
+- "需要保护的文件夹或文件": 输入一个要保护的路径，可以是文件或文件夹，如果用默认值 '/'，代表保护整个笔记库，打开被保护的文件需要输入一次密码.
+- "更多需要保护的文件夹或文件": 添加更多需要保护的路径, 例如：“我的笔记/日记”, 最多可以添加6条.
 
 ## 新功能  
 
 - 版本: 1.1.12 (2023.8.16)
 
 1. 增加自动打开密码保护的间隔时间设置，单位：分钟。如果设置的时间大于0，当距离上次关闭密码保护或上次打开一个被保护的文件，过去了设置的时间，插件将自动再次打开密码保护，如果用户再次打开一个受保护的文件，将弹出密码验证框验证密码。  
-
-2. 增加禁止关闭密码验证框的选项，这将提供更多的保护。如果打开这个开关，密码验证框弹出后将不能被关闭。当你设置的保护目录是根目录，如果你忘记密码，你将有可能进不了Obsidian，因为这种情况下，Obsidian 启动时将弹出密码验证框，而且无法直接关闭。  
 
 ## 已测试的系统
 

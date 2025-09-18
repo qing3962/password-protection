@@ -9,8 +9,8 @@
   "password_protection_closed": "Verificación de contraseña aprobada!",
   "notice_set_password": "¡Introduzca la contraseña en preferencias para el complemento Protección con Contraseña primero!",
   "setting_folder_name": "Carpeta o archivo protegido",
-  "setting_folder_desc": "Ruta relativa, usa '/' para la ruta raíz de la bóveda",
-  "place_holder_enter_path": "Introduce ruta, empiece con '/'",
+  "setting_folder_desc": "El valor predeterminado '/' es la ruta raíz de la bóveda",
+  "place_holder_enter_path": "Introduzca la ruta, p. ej. Misnotas/diario",
   "setting_toggle_name": "Activar/Desactivar protección con contraseña",
   "setting_toggle_desc": "Para activar protección con contraseña, establecerás una contraseña, y para desactivar, tienes que verificarla.",
   "hint_enter_in_both_boxes": "Introduzca la contraseña en ambas casillas.",
@@ -35,6 +35,6 @@
   "setting_more_path": "Más carpetas o archivos a proteger (hasta 6)",
   "setting_add_path": "Añadir ruta protegida",
   "setting_add_path_name": "Ruta protegida",
-  "setting_add_path_place_holder": "Introducir ruta, empieza con '/'",
+  "setting_add_path_place_holder": "Introduzca la ruta, p. ej. Misnotas/diario",
   "setting_remove_path": "Eliminar ruta protegida"
 }

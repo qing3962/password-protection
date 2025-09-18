@@ -1,6 +1,6 @@
 {
 	"name": "password-protection",
-	"version": "1.1.29",
+	"version": "1.1.30",
 	"description": "Lock and protect your private notes and diary with a password, no encrypt, no decrypt.",
 	"main": "main.js",
 	"scripts": {

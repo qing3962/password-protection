@@ -8,8 +8,8 @@
   "password_protection_closed": "密码验证通过",
   "notice_set_password": "请先去密码保护插件的设置页设置密码",
   "setting_folder_name": "需要保护的文件夹或文件",
-  "setting_folder_desc": "输入相对路径, '/' 代表笔记库的根路径",
-  "place_holder_enter_path": "输入路径，以'/'开始",
+  "setting_folder_desc": "默认值 '/' 代表笔记库的根路径",
+  "place_holder_enter_path": "输入路径，比如：我的笔记/日记",
   "setting_toggle_name": "开启或关闭密码保护",
   "setting_toggle_desc": "开启保护需要设置密码，关闭保护需要验证密码",
   "hint_enter_in_both_boxes": "请在两个输入框中都输入密码",
@@ -34,6 +34,6 @@
   "setting_more_path": "更多需要保护的文件夹或文件(最多6个)",
   "setting_add_path": "添加保护路径",
   "setting_add_path_name": "保护路径",
-  "setting_add_path_place_holder": "输入路径，以'/'开始",
+  "setting_add_path_place_holder": "输入路径，比如：我的笔记/日记",
   "setting_remove_path": "移除保护路径"
 }

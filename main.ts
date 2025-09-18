@@ -54,6 +54,7 @@ export default class PasswordPlugin extends Plugin {
     settings: PasswordPluginSettings;
     isVerifyPasswordWaitting: boolean = false;
     isVerifyPasswordCorrect: boolean = false;
+    isAutoLockRegistered: boolean = false;
     lastUnlockOrOpenFileTime: moment.Moment | null = null;
 
     passwordRibbonBtn: HTMLElement;
@@ -70,8 +71,8 @@ export default class PasswordPlugin extends Plugin {
 
         // check if the protected path is empty, if so, set to root path
         this.settings.protectedPath = this.settings.protectedPath.trim();
-        if (this.settings.protectedPath.length == 0 || this.settings.protectedPath[0] != '/') {
-            this.settings.protectedPath = ROOT_PATH + this.settings.protectedPath;
+        if (this.settings.protectedPath.length == 0 ) {
+            this.settings.protectedPath = ROOT_PATH;
         }
 
         // check if the added protected path array exceed the limit, if so, remove the extra
@@ -123,7 +124,7 @@ export default class PasswordPlugin extends Plugin {
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
                 this.autoLockCheck();
-                if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file)) {
+                if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file.path)) {
                     this.verifyPasswordProtection();
                 }
                 // update the time of last open file, the file may be protected and may be not.
@@ -151,16 +152,45 @@ export default class PasswordPlugin extends Plugin {
             }
         }));
 
+        // listen the rename event
+        this.app.vault.on('rename', this.handleRename);
+
         // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-        if (this.settings.protectEnabled && this.settings.autoLockInterval > 0) {
-            this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1000));
-        }
+        this.registerAutoLock();
     }
 
     async onunload() {
+        this.app.vault.off('rename', this.handleRename);
+
         this.settings.isLastVerifyPasswordCorrect = this.isVerifyPasswordCorrect;
         this.settings.timeOnUnload = moment();
         await this.saveSettings();
+    }
+
+    private handleRename = (
+        file: TFile,       // the file after rename
+        oldPath: string    // the old path of the file
+    ) => {
+        if (file != null) {
+            this.autoLockCheck();
+            if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && (this.isProtectedFile(oldPath) || this.isProtectedFile(file.path))) {
+                this.verifyPasswordProtection();
+            }
+            if (this.settings.protectEnabled && this.isProtectedFile(oldPath)) {
+                this.ReplaceProtectedPath(oldPath, file.path);
+            }
+            // update the time of last open file, the file may be protected and may be not.
+            if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
+                this.lastUnlockOrOpenFileTime = moment();
+            }
+        }
+    };
+
+    registerAutoLock() {
+        if (this.settings.protectEnabled && this.settings.autoLockInterval > 0 && !this.isAutoLockRegistered) {
+            this.isAutoLockRegistered = true;
+            this.registerInterval(window.setInterval(() => this.autoLockCheck(), 10 * 1000));
+        }
     }
 
     autoLockCheck() {
@@ -187,7 +217,7 @@ export default class PasswordPlugin extends Plugin {
 
         for (const leaf of leaves) {
             if (leaf.view instanceof FileView && leaf.view.file != null) {
-                let needClose = this.isProtectedFile(leaf.view.file);
+                let needClose = this.isProtectedFile(leaf.view.file.path);
                 if (needClose) {
                     await emptyLeaf(leaf);
                     leaf.detach();
@@ -203,7 +233,7 @@ export default class PasswordPlugin extends Plugin {
         } else {
             if (this.isVerifyPasswordCorrect) {
                 this.isVerifyPasswordCorrect = false;
-		this.closeLeaves();
+                this.closeLeaves();
             }
         }
     }
@@ -247,33 +277,108 @@ export default class PasswordPlugin extends Plugin {
         return false;
     }
 
-    // check if the file need to be protected
-    isProtectedFile(file: TFile): boolean {
-        if (file.path == "") {
+    // check if the filepath need to be protected
+    isProtectedFile(filePath: string): boolean {
+        if (filePath == "") {
             return false;
         }
-        let path = normalizePath(file.path);
-        path = ROOT_PATH + path;
 
-        if (this.settings.protectedPath.length > 0 && path.length >= this.settings.protectedPath.length) {
-            if (path.toLowerCase().startsWith(this.settings.protectedPath.toLowerCase())) {
-                return true;
-            }
+        if (this.isIncludeRootPath()) {
+            return true;
+        }
+
+        let path = normalizePath(filePath);
+        let protectedPath = normalizePath(this.settings.protectedPath);
+
+        if (this.IsChildPath(path, protectedPath)) {
+            return true;
         }
 
         for (let i = 0; i < this.settings.addedProtectedPath.length; i++) {
-            if (this.settings.addedProtectedPath[i].length == 0) {
+            protectedPath = normalizePath(this.settings.addedProtectedPath[i]);
+
+            if (protectedPath.length == 0) {
                 continue;
             }
-            if (path.length < this.settings.addedProtectedPath[i].length) {
+            if (path.length < protectedPath.length) {
                 continue;
             }
-            if (path.toLowerCase().startsWith(this.settings.addedProtectedPath[i].toLowerCase())) {
+            if (this.IsChildPath(path, protectedPath)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    // check if the protectedPath is the child part of path.
+    IsChildPath(path: string, protectedPath: string): boolean {
+        if (protectedPath.length > 0 && path.length >= protectedPath.length) {
+            if (path.toLowerCase().startsWith(protectedPath.toLowerCase())) {
+                if (path.length == protectedPath.length) {
+                    return true;
+                } else {
+                    if (path[protectedPath.length] == '/' ||
+                        path[protectedPath.length] == '\\' ||
+                        path[protectedPath.length] == '.') {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    // Replace the protected path in the config use new path renamed
+    ReplaceProtectedPath(oldPath: string, newPath: string): boolean {
+        if (oldPath == "" || newPath == "" ) {
+            return false;
+        }
+
+        let oldProtectPath = normalizePath(this.removeFileExtension(oldPath));
+        let newProtectPath = normalizePath(this.removeFileExtension(newPath));
+        let protectedPath = "";
+
+        if (this.settings.protectedPath.trim() != ROOT_PATH) {
+            protectedPath = normalizePath(this.settings.protectedPath);
+
+            if (oldProtectPath.toLowerCase() == protectedPath.toLowerCase()) {
+                this.settings.protectedPath = newProtectPath;
+                this.saveSettings();
+                return true;
+            }
+        }
+
+        for (let i = 0; i < this.settings.addedProtectedPath.length; i++) {
+            protectedPath = this.settings.addedProtectedPath[i];
+            if (protectedPath.trim() != ROOT_PATH) {
+                protectedPath = normalizePath(protectedPath);
+
+                if (oldProtectPath.toLowerCase() == protectedPath.toLowerCase()) {
+                    this.settings.addedProtectedPath[i] = newProtectPath;
+                    this.saveSettings();
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // remove the ext of file path
+    removeFileExtension(fullPath: string): string {
+        const lastDotIndex = fullPath.lastIndexOf('.');
+
+        const lastSeparatorIndex = Math.max(
+            fullPath.lastIndexOf('/'),
+            fullPath.lastIndexOf('\\')
+        );
+
+        if (lastDotIndex === -1 || lastDotIndex <= lastSeparatorIndex) {
+            return fullPath;
+        }
+
+        return fullPath.substring(0, lastDotIndex);
     }
 
     // encrypt password
@@ -346,6 +451,7 @@ class PasswordSettingTab extends PluginSettingTab {
                                     this.plugin.isVerifyPasswordCorrect = false;
                                     this.plugin.saveSettings();
                                     this.plugin.closeLeaves();
+                                    this.plugin.registerAutoLock();
                                 }
                                 this.display();
                             }).open();
@@ -405,8 +511,8 @@ class PasswordSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.protectedPath)
                 .onChange(async (value) => {
                     let path = value.trim();
-                    if (path == "" || path[0] != '/') {
-                        path = ROOT_PATH + path;
+                    if (path == "") {
+                        path = ROOT_PATH;
                     }
                     this.plugin.settings.protectedPath = path;
                 }))
@@ -457,8 +563,8 @@ class PasswordSettingTab extends PluginSettingTab {
                 .setValue(initPath)
                 .onChange(async (value) => {
                     let path = value.trim();
-                    if (path == "" || path[0] != '/') {
-                        path = ROOT_PATH + path;
+                    if (path == "") {
+                        path = ROOT_PATH;
                     }
                     this.plugin.settings.addedProtectedPath[index] = path;
                 }))

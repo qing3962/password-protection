@@ -9,8 +9,8 @@
   "password_protection_closed": "Password verification passed.",
   "notice_set_password": "Please set the password in the settings page for the Password Protection Plugin first!",
   "setting_folder_name": "Protected folder or file",
-  "setting_folder_desc": "With relative path, the '/' is the root path of the vault",
-  "place_holder_enter_path": "Enter path, start with '/'",
+  "setting_folder_desc": "The default value '/' is the root path of the vault",
+  "place_holder_enter_path": "Enter path, e.g. mynotes/diary",
   "setting_toggle_name": "Enable/Disable password protection",
   "setting_toggle_desc": "To enable password protection you will set your password, to disable it you will need to verify your password.",
   "hint_enter_in_both_boxes": "Please enter your password in both boxes.",
@@ -35,6 +35,6 @@
   "setting_more_path": "More folders or files to be protected (up to 6)",
   "setting_add_path": "Add protected path",
   "setting_add_path_name": "Protected path",
-  "setting_add_path_place_holder": "Enter path, start with the '/'",
+  "setting_add_path_place_holder": "Enter path, e.g. mynotes/diary",
   "setting_remove_path": "Remove protected path"
 }
