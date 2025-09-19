@@ -123,7 +123,6 @@ export default class PasswordPlugin extends Plugin {
         // when the file opened, check if it need to be protected, if so, show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
-                this.autoLockCheck();
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file.path)) {
                     this.verifyPasswordProtection();
                 }
@@ -155,11 +154,15 @@ export default class PasswordPlugin extends Plugin {
         // listen the rename event
         this.app.vault.on('rename', this.handleRename);
 
+        // listen the save event of file modified.
+        this.app.vault.on('modify', this.handleFileModify);
+
         // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
         this.registerAutoLock();
     }
 
     async onunload() {
+        this.app.vault.off('modify', this.handleFileModify);
         this.app.vault.off('rename', this.handleRename);
 
         this.settings.isLastVerifyPasswordCorrect = this.isVerifyPasswordCorrect;
@@ -172,7 +175,6 @@ export default class PasswordPlugin extends Plugin {
         oldPath: string    // the old path of the file
     ) => {
         if (file != null) {
-            this.autoLockCheck();
             if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && (this.isProtectedFile(oldPath) || this.isProtectedFile(file.path))) {
                 this.verifyPasswordProtection();
             }
@@ -185,6 +187,11 @@ export default class PasswordPlugin extends Plugin {
             }
         }
     };
+
+    // process the save event of file modified.
+    private handleFileModify = (file: TFile) => {
+        this.lastUnlockOrOpenFileTime = moment();
+    }
 
     registerAutoLock() {
         if (this.settings.protectEnabled && this.settings.autoLockInterval > 0 && !this.isAutoLockRegistered) {
