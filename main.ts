@@ -123,6 +123,7 @@ export default class PasswordPlugin extends Plugin {
         // when the file opened, check if it need to be protected, if so, show the password dialog
         this.registerEvent(this.app.workspace.on('file-open', (file: TFile | null) => {
             if (file != null) {
+                this.autoLockCheck();
                 if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isProtectedFile(file.path)) {
                     this.verifyPasswordProtection();
                 }
@@ -204,10 +205,30 @@ export default class PasswordPlugin extends Plugin {
         if (this.settings.protectEnabled && this.isVerifyPasswordCorrect && this.settings.autoLockInterval > 0) {
             let curTime = moment();
             if (curTime.diff(this.lastUnlockOrOpenFileTime, 'minute') >= this.settings.autoLockInterval) {
-                this.isVerifyPasswordCorrect = false;
-                this.verifyPasswordProtection();
+                if (this.isProtectFileOpened()) {
+                    this.isVerifyPasswordCorrect = false;
+                    this.verifyPasswordProtection();
+                } else {
+                    this.isVerifyPasswordCorrect = false;
+                }
             }
         }
+    }
+
+    // check if the file opened need to be protected.
+    isProtectFileOpened(): boolean {
+        let leaves: WorkspaceLeaf[] = [];
+        let isOpened = false;
+
+        this.app.workspace.iterateAllLeaves((leaf) => {
+            if (leaf.view instanceof FileView && leaf.view.file != null) {
+                if (!isOpened) {
+                    isOpened = this.isProtectedFile(leaf.view.file.path);
+                }
+            }
+        });
+
+        return isOpened;
     }
 
     // close notes
@@ -264,6 +285,8 @@ export default class PasswordPlugin extends Plugin {
             const setModal = new VerifyPasswordModal(this.app, this, () => {
                 if (this.isVerifyPasswordCorrect) {
                     new Notice(this.t("password_protection_closed"));
+                } else {
+                    this.closeLeaves();
                 }
             }).open();
         }
@@ -748,13 +771,13 @@ class VerifyPasswordModal extends Modal {
     }
 
     onOpen() {
-        if (this.plugin.settings.protectEnabled) {
-            const { modalEl } = this;
-            const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
-            if (closeButton != null) {
-                closeButton.setAttribute('style', 'display: none;');
-            }
-        }
+        //if (this.plugin.settings.protectEnabled) {
+        //    const { modalEl } = this;
+        //    const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+        //    if (closeButton != null) {
+        //        closeButton.setAttribute('style', 'display: none;');
+        //    }
+        //}
 
         Object.assign(this.app.workspace.containerEl.style, {
             filter: "blur(8px)",
@@ -863,16 +886,7 @@ class VerifyPasswordModal extends Modal {
         this.plugin.isVerifyPasswordWaitting = false;
         const { contentEl } = this;
         contentEl.empty();
-        if (this.plugin.settings.protectEnabled) {
-            if (!this.plugin.isVerifyPasswordCorrect) {
-                const setModal = new VerifyPasswordModal(this.app, this.plugin, this.onSubmit).open();
-            } else {
-                this.restoreBlur();
-                this.onSubmit();
-            }
-        } else {
-            this.restoreBlur();
-            this.onSubmit();
-        }
+        this.restoreBlur();
+        this.onSubmit();
     }
 }
