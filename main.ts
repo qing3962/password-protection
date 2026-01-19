@@ -71,7 +71,7 @@ export default class PasswordPlugin extends Plugin {
 
         // check if the protected path is empty, if so, set to root path
         this.settings.protectedPath = this.settings.protectedPath.trim();
-        if (this.settings.protectedPath.length == 0 ) {
+        if (this.settings.protectedPath.length == 0) {
             this.settings.protectedPath = ROOT_PATH;
         }
 
@@ -139,11 +139,9 @@ export default class PasswordPlugin extends Plugin {
             if (leaf != null && leaf.view != null) {
                 let viewType = leaf.view.getViewType();
                 if (viewType == 'search') {
-                    this.autoLockCheck();
-                    if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect) {
-                        // show the password dialog
-                        this.verifyPasswordProtection(true);
-                    }
+                    // if all protected paths are excluded from search, we don't need to show the password dialog
+                    let skipPrompt = this.isAllProtectedPathExcludedFromSearch();
+                    this.autoLockCheck(skipPrompt);
                     // update the time of last search view actived.
                     if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
                         this.lastUnlockOrOpenFileTime = moment();
@@ -201,11 +199,11 @@ export default class PasswordPlugin extends Plugin {
         }
     }
 
-    autoLockCheck() {
+    autoLockCheck(skipPrompt: boolean = false) {
         if (this.settings.protectEnabled && this.isVerifyPasswordCorrect && this.settings.autoLockInterval > 0) {
             let curTime = moment();
             if (curTime.diff(this.lastUnlockOrOpenFileTime, 'minute') >= this.settings.autoLockInterval) {
-                if (this.isProtectFileOpened()) {
+                if (this.isProtectFileOpened() && !skipPrompt) {
                     this.isVerifyPasswordCorrect = false;
                     this.verifyPasswordProtection(false);
                 } else {
@@ -213,6 +211,49 @@ export default class PasswordPlugin extends Plugin {
                 }
             }
         }
+    }
+
+    // check if all protected paths are excluded from search.
+    isAllProtectedPathExcludedFromSearch(): boolean {
+        const userIgnoreFilters = (this.app.vault as any).getConfig("userIgnoreFilters") as string[];
+        if (!userIgnoreFilters || userIgnoreFilters.length == 0) {
+            return false;
+        }
+
+        // check the root path
+        if (this.settings.protectedPath == ROOT_PATH) {
+            if (!this.isPathExcluded(ROOT_PATH, userIgnoreFilters)) {
+                return false;
+            }
+        } else {
+            if (!this.isPathExcluded(this.settings.protectedPath, userIgnoreFilters)) {
+                return false;
+            }
+        }
+
+        // check the added protected paths
+        for (let i = 0; i < this.settings.addedProtectedPath.length; i++) {
+            let path = this.settings.addedProtectedPath[i].trim();
+            if (path.length > 0) {
+                if (!this.isPathExcluded(path, userIgnoreFilters)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // check if the path is excluded by any of the filters.
+    isPathExcluded(path: string, excludedFilters: string[]): boolean {
+        let normalizedPath = normalizePath(path).toLowerCase();
+        for (let filter of excludedFilters) {
+            let normalizedFilter = normalizePath(filter).toLowerCase();
+            if (normalizedPath.startsWith(normalizedFilter)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // check if the file opened need to be protected.
@@ -307,6 +348,8 @@ export default class PasswordPlugin extends Plugin {
         return false;
     }
 
+
+
     // check if the filepath need to be protected
     isProtectedFile(filePath: string): boolean {
         if (filePath == "") {
@@ -361,7 +404,7 @@ export default class PasswordPlugin extends Plugin {
 
     // Replace the protected path in the config use new path renamed
     ReplaceProtectedPath(oldPath: string, newPath: string): boolean {
-        if (oldPath == "" || newPath == "" ) {
+        if (oldPath == "" || newPath == "") {
             return false;
         }
 
@@ -462,7 +505,7 @@ class PasswordSettingTab extends PluginSettingTab {
     }
 
     display(): void {
-        const {containerEl} = this;
+        const { containerEl } = this;
 
         containerEl.empty();
 
@@ -760,7 +803,7 @@ class SetPasswordModal extends Modal {
 
 class VerifyPasswordModal extends Modal {
     plugin: PasswordPlugin;
-	forbidCloseModal: boolean;
+    forbidCloseModal: boolean;
     onSubmit: () => void;
 
     constructor(app: App, plugin: PasswordPlugin, forbidCloseModal: boolean, onSubmit: () => void) {
@@ -768,17 +811,17 @@ class VerifyPasswordModal extends Modal {
         this.plugin = plugin;
         this.plugin.isVerifyPasswordWaitting = true;
         this.plugin.isVerifyPasswordCorrect = false;
-		this.forbidCloseModal = forbidCloseModal;
+        this.forbidCloseModal = forbidCloseModal;
         this.onSubmit = onSubmit;
     }
 
     onOpen() {
         if (this.forbidCloseModal) {
-           const { modalEl } = this;
-           const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
-           if (closeButton != null) {
-               closeButton.setAttribute('style', 'display: none;');
-           }
+            const { modalEl } = this;
+            const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+            if (closeButton != null) {
+                closeButton.setAttribute('style', 'display: none;');
+            }
         }
 
         Object.assign(this.app.workspace.containerEl.style, {
