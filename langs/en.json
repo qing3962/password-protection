@@ -26,6 +26,8 @@
   "password_is_empty": "Password is empty.",
   "password_not_match": "Password doesn't match.",
   "password_is_right": "Password is correct.",
+  "setting_blur_radius_name": "Blur radius",
+  "setting_blur_radius_desc": "The radius of the blur effect when a note is locked.",
   "auto_lock_interval_name": "Auto-lock",
   "auto_lock_interval_desc": "The number of minutes to wait before auto-locking since the protected file was opened.",
   "before_open_protection": "Turn on the above switch to enable password protection, and disable the below options.",

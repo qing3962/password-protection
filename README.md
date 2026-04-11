@@ -21,6 +21,7 @@ No encrypt, no decrypt. This plugin doesn't modify your notes, it only lock the 
 - "Password prompt": Please type a question to help you remember your password.
 - "Protected folder or file": You may type a path for protecting, if you use the '/', the entire vault will be protected.
 - "More folders or files": Add more paths to be protected, e.g. 'mynotes/diarys', up to 6.
+- "Blur radius": The radius of the blur effect when a note is locked.
 
 ## Changelog
 

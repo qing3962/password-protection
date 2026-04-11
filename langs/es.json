@@ -26,6 +26,8 @@
   "password_is_empty": "Contraseña vacía.",
   "password_not_match": "Contraseñas no coinciden.",
   "password_is_right": "Contraseña correcta.",
+  "setting_blur_radius_name": "Radio de desenfoque",
+  "setting_blur_radius_desc": "El radio del efecto de desenfoque cuando una nota está bloqueada.",
   "auto_lock_interval_name": "Bloqueo Automático",
   "auto_lock_interval_desc": "El número de minutos para esperar antes de bloquear automático desde que se abrió la nota protegido.",
   "before_open_protection": "Activar el interruptor de arriba para activar protección con contraseña y desactivar las opciones de abajo.",

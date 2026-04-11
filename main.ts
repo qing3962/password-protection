@@ -25,6 +25,9 @@ interface PasswordPluginSettings {
     // the language type, it can be 'auto' or a specific language code
     lang: LangTypeAndAuto;
 
+	// the blur radius when the password protection is enabled, the default value is 8px, the max value is 10
+	blurRadiusPx: number;
+
     // when the auto lock interval is set, it will auto lock the password protection after the interval
     autoLockInterval: number;
 
@@ -44,6 +47,7 @@ const DEFAULT_SETTINGS: PasswordPluginSettings = {
     protectEnabled: false,
     password: '',
     lang: "auto",
+	blurRadiusPx: 8,
     autoLockInterval: 0,
     pwdHintQuestion: '',
     isLastVerifyPasswordCorrect: false,
@@ -501,6 +505,26 @@ class PasswordSettingTab extends PluginSettingTab {
 
         containerEl.createEl("h6", { text: this.plugin.t("before_open_protection") });
 
+		new Setting(containerEl)
+			.setName(this.plugin.t("setting_blur_radius_name"))
+			.setDesc(this.plugin.t("setting_blur_radius_desc"))
+			.addText((text) => text
+					.setPlaceholder("8 px")
+					.setValue(`${this.plugin.settings.blurRadiusPx.toString()} px`)
+					.onChange(async (value) => {
+						value = value.replace(/[^0-9]/g, "");
+						if (value) {
+							let radius = parseInt(value);
+							if (radius != null && radius >= 0) {
+								this.plugin.settings.blurRadiusPx = radius;
+
+								await this.plugin.saveSettings();
+							}
+						}
+					}),
+			)
+			.setDisabled(this.plugin.settings.protectEnabled);
+
         new Setting(containerEl)
             .setName(this.plugin.t("auto_lock_interval_name"))
             .setDesc(this.plugin.t("auto_lock_interval_desc"))
@@ -782,7 +806,7 @@ class VerifyPasswordModal extends Modal {
         }
 
         Object.assign(this.app.workspace.containerEl.style, {
-            filter: "blur(8px)",
+            filter: `blur(${this.plugin.settings.blurRadiusPx}px)`,
         } as CSSStyleDeclaration);
 
         const { contentEl } = this;
