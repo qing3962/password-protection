@@ -32,6 +32,8 @@
   "setting_pwd_hint_question_name": "Password prompt",
   "setting_pwd_hint_question_desc": "Please type a question to help you remember your password.",
   "place_holder_enter_pwd_hint_question": "Password prompt question",
+  "setting_verify_password_blur_name": "Password modal background blur",
+  "setting_verify_password_blur_desc": "Background blur applied when the password verification modal opens. Unit: px.",
   "setting_more_path": "More folders or files to be protected (up to 6)",
   "setting_add_path": "Add protected path",
   "setting_add_path_name": "Protected path",

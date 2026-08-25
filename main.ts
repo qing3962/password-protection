@@ -1,4 +1,4 @@
-import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, setIcon, WorkspaceLeaf, FileView, moment } from 'obsidian';
+import { App, normalizePath, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder, setIcon, WorkspaceLeaf, FileView, moment } from 'obsidian';
 import { I18n } from "./i18n";
 import type { LangType, LangTypeAndAuto, TransItemType } from "./i18n";
 
@@ -31,6 +31,9 @@ interface PasswordPluginSettings {
     // the password hint question, it will be shown when the password is not correct
     pwdHintQuestion: string;
 
+    // the blur radius of the workspace background when the password verification modal opens
+    verifyPasswordBlurPx: number;
+
     // if the last verify password is correct, it will be used to determine if the password protection should be closed
     isLastVerifyPasswordCorrect: boolean;
 
@@ -46,8 +49,24 @@ const DEFAULT_SETTINGS: PasswordPluginSettings = {
     lang: "auto",
     autoLockInterval: 0,
     pwdHintQuestion: '',
+    verifyPasswordBlurPx: 8,
     isLastVerifyPasswordCorrect: false,
     timeOnUnload: 0
+}
+
+interface FileExplorerItem {
+    file?: TFile | TFolder;
+    collapsed?: boolean;
+    isCollapsed?: boolean;
+    selfEl?: HTMLElement;
+    titleEl?: HTMLElement;
+    setCollapsed?: (collapsed: boolean) => void;
+}
+
+interface FileExplorerView {
+    containerEl: HTMLElement;
+    fileItems?: Record<string, FileExplorerItem>;
+    getViewType(): string;
 }
 
 export default class PasswordPlugin extends Plugin {
@@ -56,6 +75,8 @@ export default class PasswordPlugin extends Plugin {
     isVerifyPasswordCorrect: boolean = false;
     isAutoLockRegistered: boolean = false;
     lastUnlockOrOpenFileTime: moment.Moment | null = null;
+    onceActionTimeoutId: number | null = null;
+    fileExplorerProtectionRegistered: boolean = false;
 
     passwordRibbonBtn: HTMLElement;
     i18n: I18n;
@@ -108,14 +129,14 @@ export default class PasswordPlugin extends Plugin {
 
         // when the layout is ready, check if the root folder need to be protected, if so, show the password dialog
         this.app.workspace.onLayoutReady(() => {
-            if (this.settings.protectEnabled && this.isIncludeRootPath()) {
-                if (!this.isVerifyPasswordCorrect) {
-                    let curTime = moment();
-                    if (curTime.diff(this.settings.timeOnUnload, 'second') <= 2 && this.settings.isLastVerifyPasswordCorrect) {
-                        this.isVerifyPasswordCorrect = true;
-                    } else {
-                        this.verifyPasswordProtection(false);
-                    }
+            this.registerFileExplorerProtection();
+
+            if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect && this.isIncludeRootPath()) {
+                let curTime = moment();
+                if (curTime.diff(this.settings.timeOnUnload, 'second') <= 2 && this.settings.isLastVerifyPasswordCorrect) {
+                    this.isVerifyPasswordCorrect = true;
+                } else {
+                    this.verifyPasswordProtection(false);
                 }
             }
         });
@@ -134,17 +155,17 @@ export default class PasswordPlugin extends Plugin {
             }
         }));
 
-        // when the search view opened, check if it need to be protected, if so, show the password dialog.
+        // when a workspace view exposing protected note metadata opened, check if it need to be protected.
         this.registerEvent(this.app.workspace.on('active-leaf-change', (leaf: WorkspaceLeaf | null) => {
             if (leaf != null && leaf.view != null) {
                 let viewType = leaf.view.getViewType();
-                if (viewType == 'search') {
+                if (this.isPasswordProtectedView(viewType)) {
                     this.autoLockCheck();
                     if (this.settings.protectEnabled && !this.isVerifyPasswordCorrect) {
                         // show the password dialog
                         this.verifyPasswordProtection(true);
                     }
-                    // update the time of last search view actived.
+                    // update the time of last protected workspace view actived.
                     if (this.settings.protectEnabled && this.isVerifyPasswordCorrect) {
                         this.lastUnlockOrOpenFileTime = moment();
                     }
@@ -160,9 +181,12 @@ export default class PasswordPlugin extends Plugin {
 
         // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
         this.registerAutoLock();
+
+        this.registerOnceAction();
     }
 
     async onunload() {
+        this.unregisterOnceAction();
         this.app.vault.off('modify', this.handleFileModify);
         this.app.vault.off('rename', this.handleRename);
 
@@ -215,6 +239,271 @@ export default class PasswordPlugin extends Plugin {
         }
     }
 
+    registerOnceAction() {
+        if (this.onceActionTimeoutId != null) {
+            return;
+        }
+
+        this.onceActionTimeoutId = window.setTimeout(() => this.onceAction(), 1 * 1000);
+    }
+
+    onceAction() {
+        this.unregisterOnceAction();
+        this.collapseAllProtectedFolders();
+    }
+
+    unregisterOnceAction() {
+        if (this.onceActionTimeoutId == null) {
+            return;
+        }
+
+        window.clearTimeout(this.onceActionTimeoutId);
+        this.onceActionTimeoutId = null;
+    }
+
+    // Check if the workspace view exposing protected note metadata is a password protected view, such as search or file-explorer.
+    isPasswordProtectedView(viewType: string): boolean {
+        return viewType == 'search' || viewType == 'bookmarks';// || viewType == 'tag' || viewType == 'backlink' || viewType == 'outgoing-link' || viewType == 'outline';
+    }
+
+    // Check if any workspace view exposing protected note metadata is opened, such as search or file-explorer.
+    isPasswordProtectedViewOpened(): boolean {
+        let isOpened = false;
+        this.app.workspace.iterateAllLeaves((leaf) => {
+            if (leaf.view != null && this.isPasswordProtectedView(leaf.view.getViewType())) {
+                isOpened = true;
+            }
+        });
+        return isOpened;
+    }
+
+    // Register capture-phase handlers on the file explorer so protected folders can be checked before Obsidian expands them.
+    registerFileExplorerProtection() {
+        if (this.fileExplorerProtectionRegistered) {
+            return;
+        }
+
+        this.fileExplorerProtectionRegistered = true;
+
+        const captureOptions: AddEventListenerOptions = { capture: true, passive: false };
+
+        // this.registerDomEvent(window, 'click', (event: MouseEvent) => {
+        //     this.handleFileExplorerFolderExpand(event);
+        // }, captureOptions);
+
+        this.registerDomEvent(window, 'pointerdown', (event: PointerEvent) => {
+            this.handleFileExplorerFolderExpand(event);
+        }, captureOptions);
+
+        this.registerDomEvent(window, 'touchstart', (event: TouchEvent) => {
+            this.handleFileExplorerFolderExpand(event);
+        }, captureOptions);
+
+        this.registerDomEvent(window, 'keydown', (event: KeyboardEvent) => {
+            this.handleFileExplorerFolderExpand(event);
+        }, captureOptions);
+    }
+
+    // Stop attempts to expand a protected folder until the password has been verified.
+    handleFileExplorerFolderExpand(event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent) {
+        if (!this.settings.protectEnabled || this.isVerifyPasswordCorrect || this.isVerifyPasswordWaitting) {
+            return;
+        }
+
+        console.log(`handleFileExplorerFolderExpand: event type: ${event.type}, key: ${(event instanceof KeyboardEvent) ? event.key : 'N/A'}`);
+        if (event instanceof KeyboardEvent && event.key != 'Enter' && event.key != ' ' && event.key != 'Spacebar' && event.key != 'ArrowRight') {
+            return;
+        }
+
+        const item = this.getFileExplorerFolderItemFromEvent(event);
+        if (item == null || item.file == null || !(item.file instanceof TFolder)) {
+            return;
+        }
+
+        if (!this.isFileExplorerItemCollapsed(item)) {
+            return;
+        }
+
+        if (!this.isProtectedFile(item.file.path)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        this.verifyPasswordBeforeAction(() => {
+            this.expandFileExplorerFolder(item);
+        });
+    }
+
+    // Map a click or keyboard event in the file explorer DOM back to Obsidian's internal folder item.
+    getFileExplorerFolderItemFromEvent(event: Event): FileExplorerItem | null {
+        let matchedItem: FileExplorerItem | null = null;
+
+        this.app.workspace.iterateAllLeaves((leaf) => {
+            if (matchedItem != null || leaf.view == null || leaf.view.getViewType() != 'file-explorer') {
+                return;
+            }
+
+            const fileExplorerView = leaf.view as unknown as FileExplorerView;
+            const item = this.getFileExplorerFolderItemFromEventInView(event, fileExplorerView);
+            if (item != null) {
+                matchedItem = item;
+            }
+        });
+
+        return matchedItem;
+    }
+
+    getFileExplorerFolderItemFromEventInView(event: Event, fileExplorerView: FileExplorerView): FileExplorerItem | null {
+        const folderTitleEl = this.getFocusedFileExplorerFolderTitleEl(event, fileExplorerView);
+
+        if (folderTitleEl == null || fileExplorerView.fileItems == null || !fileExplorerView.containerEl.contains(folderTitleEl)) {
+            return null;
+        }
+
+        const path = folderTitleEl.getAttribute('data-path');
+        if (path != null) {
+            const item = fileExplorerView.fileItems[path];
+            if (item?.file instanceof TFolder) {
+                return item;
+            }
+        }
+
+        const folderEl = folderTitleEl.closest('.nav-folder');
+        for (const fileItem of Object.values(fileExplorerView.fileItems)) {
+            if (
+                fileItem.file instanceof TFolder &&
+                (fileItem.titleEl == folderTitleEl ||
+                    fileItem.titleEl?.contains(folderTitleEl) ||
+                    fileItem.selfEl == folderEl)
+            ) {
+                return fileItem;
+            }
+        }
+
+        return null;
+    }
+
+    getFocusedFileExplorerFolderTitleEl(event: Event, fileExplorerView: FileExplorerView): HTMLElement | null {
+        const candidates: Node[] = [];
+        const uiEvent = event as UIEvent;
+        const eventDoc = uiEvent.doc ?? document;
+
+        const pushCandidate = (value: unknown) => {
+            if (value != null && typeof value === 'object' && 'instanceOf' in value) {
+                candidates.push(value as Node);
+            }
+        };
+
+        pushCandidate(event.target);
+        pushCandidate(uiEvent.targetNode);
+        pushCandidate(eventDoc.activeElement);
+
+        const activeDescendantId = eventDoc.activeElement?.getAttribute('aria-activedescendant');
+        if (activeDescendantId != null) {
+            pushCandidate(eventDoc.getElementById(activeDescendantId));
+        }
+
+        for (const value of event.composedPath()) {
+            pushCandidate(value);
+        }
+
+        pushCandidate(fileExplorerView.containerEl.querySelector('.nav-folder-title.is-active, .tree-item-self.is-active'));
+
+        for (const candidate of candidates) {
+            const folderTitleEl = this.getFolderTitleElFromNode(candidate);
+            if (folderTitleEl != null) {
+                return folderTitleEl;
+            }
+        }
+
+        return null;
+    }
+
+    getFolderTitleElFromNode(node: Node | null): HTMLElement | null {
+        if (node == null || !node.instanceOf(Element)) {
+            return null;
+        }
+
+        const element = node as Element;
+        if (element.hasClass('nav-folder-title') || element.hasClass('tree-item-self') || element.hasAttribute('data-path')) {
+            return element as HTMLElement;
+        }
+
+        const folderTitleEl = element.matchParent('.nav-folder-title, .tree-item-self, [data-path]');
+        if (folderTitleEl != null && folderTitleEl.instanceOf(HTMLElement)) {
+            return folderTitleEl as HTMLElement;
+        }
+
+        return null;
+    }
+
+    // Prefer Obsidian's internal state, then fall back to the rendered DOM class.
+    isFileExplorerItemCollapsed(item: FileExplorerItem): boolean {
+        if (typeof item.collapsed == 'boolean') {
+            return item.collapsed;
+        }
+
+        if (typeof item.isCollapsed == 'boolean') {
+            return item.isCollapsed;
+        }
+
+        const folderEl = item.selfEl?.closest('.nav-folder') ?? item.titleEl?.closest('.nav-folder');
+        const isCollapsed = folderEl?.classList.contains('is-collapsed');
+        return isCollapsed ?? false;
+    }
+
+    // Run an action only after a password modal completes successfully.
+    verifyPasswordBeforeAction(onVerified: () => void) {
+        if (!this.isVerifyPasswordWaitting) {
+            const setModal = new VerifyPasswordModal(this.app, this, false, () => {
+                if (this.isVerifyPasswordCorrect) {
+                    onVerified();
+                }
+            }).open();
+        }
+    }
+
+    // Expand a folder through Obsidian's internal method, falling back to a title click for compatibility.
+    expandFileExplorerFolder(item: FileExplorerItem) {
+        if (item.setCollapsed != null) {
+            item.setCollapsed.call(item, false);
+            return;
+        }
+
+        item.titleEl?.click();
+    }
+
+    // Hide restored expanded protected folders before the user has verified the password.
+    collapseProtectedFileExplorerFolders(fileExplorerView: FileExplorerView) {
+        if (!this.settings.protectEnabled || this.isVerifyPasswordCorrect || fileExplorerView.fileItems == null) {
+            return;
+        }
+
+        for (const fileItem of Object.values(fileExplorerView.fileItems)) {
+            if (!this.isFileExplorerItemCollapsed(fileItem)) {
+                if (fileItem.file instanceof TFolder && this.isProtectedFile(fileItem.file.path)) {
+                    if (fileItem.setCollapsed != null) {
+                        fileItem.setCollapsed.call(fileItem, true);
+                    } else {
+                        fileItem.titleEl?.click();
+                    }
+                }
+            }
+        }
+    }
+
+    collapseAllProtectedFolders() {
+        this.app.workspace.iterateAllLeaves((leaf) => {
+            if (leaf.view != null && leaf.view.getViewType() == 'file-explorer') {
+                const fileExplorerView = leaf.view as unknown as FileExplorerView;
+
+                this.collapseProtectedFileExplorerFolders(fileExplorerView);
+            }
+        });
+    }
+
     // check if the file opened need to be protected.
     isProtectFileOpened(): boolean {
         let leaves: WorkspaceLeaf[] = [];
@@ -262,6 +551,7 @@ export default class PasswordPlugin extends Plugin {
             if (this.isVerifyPasswordCorrect) {
                 this.isVerifyPasswordCorrect = false;
                 this.closeLeaves();
+                this.collapseAllProtectedFolders();
             }
         }
     }
@@ -287,6 +577,7 @@ export default class PasswordPlugin extends Plugin {
                     new Notice(this.t("password_protection_closed"));
                 } else {
                     this.closeLeaves();
+                    this.collapseAllProtectedFolders();
                 }
             }).open();
         }
@@ -482,6 +773,7 @@ class PasswordSettingTab extends PluginSettingTab {
                                     this.plugin.saveSettings();
                                     this.plugin.closeLeaves();
                                     this.plugin.registerAutoLock();
+                                    this.plugin.collapseAllProtectedFolders();
                                 }
                                 this.display();
                             }).open();
@@ -529,6 +821,24 @@ class PasswordSettingTab extends PluginSettingTab {
                         return;
                     }
                     this.plugin.settings.pwdHintQuestion = value;
+                }))
+            .setDisabled(this.plugin.settings.protectEnabled);
+
+        new Setting(containerEl)
+            .setName(this.plugin.t("setting_verify_password_blur_name"))
+            .setDesc(this.plugin.t("setting_verify_password_blur_desc"))
+            .addText(text => text
+                .setPlaceholder("8")
+                .setValue(this.plugin.settings.verifyPasswordBlurPx.toString())
+                .onChange(async (value) => {
+                    value = value.replace(/[^0-9]/g, '');
+                    if (!value) {
+                        return;
+                    }
+                    const blurPx = parseInt(value);
+                    if (blurPx != null && blurPx >= 0) {
+                        this.plugin.settings.verifyPasswordBlurPx = blurPx;
+                    }
                 }))
             .setDisabled(this.plugin.settings.protectEnabled);
 
@@ -760,7 +1070,7 @@ class SetPasswordModal extends Modal {
 
 class VerifyPasswordModal extends Modal {
     plugin: PasswordPlugin;
-	forbidCloseModal: boolean;
+    forbidCloseModal: boolean;
     onSubmit: () => void;
 
     constructor(app: App, plugin: PasswordPlugin, forbidCloseModal: boolean, onSubmit: () => void) {
@@ -768,21 +1078,25 @@ class VerifyPasswordModal extends Modal {
         this.plugin = plugin;
         this.plugin.isVerifyPasswordWaitting = true;
         this.plugin.isVerifyPasswordCorrect = false;
-		this.forbidCloseModal = forbidCloseModal;
+        this.forbidCloseModal = forbidCloseModal;
         this.onSubmit = onSubmit;
     }
 
     onOpen() {
         if (this.forbidCloseModal) {
            const { modalEl } = this;
-           const closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+           let closeButton = modalEl.getElementsByClassName('modal-close-button')[0];
+           if (closeButton == null) {
+               closeButton = modalEl.getElementsByClassName('modal-header-button')[0];
+           }
            if (closeButton != null) {
                closeButton.setAttribute('style', 'display: none;');
            }
         }
 
+        const blurPx = this.plugin.settings.verifyPasswordBlurPx;
         Object.assign(this.app.workspace.containerEl.style, {
-            filter: "blur(8px)",
+            filter: `blur(${blurPx}px)`,
         } as CSSStyleDeclaration);
 
         const { contentEl } = this;

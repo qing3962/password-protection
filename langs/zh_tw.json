@@ -31,6 +31,8 @@
   "setting_pwd_hint_question_name": "密碼提示問題",
   "setting_pwd_hint_question_desc": "當你忘記密碼時，可以通過這個問題來提示你的密碼.",
   "place_holder_enter_pwd_hint_question": "輸入密碼提示問題",
+  "setting_verify_password_blur_name": "密碼驗證框背景模糊",
+  "setting_verify_password_blur_desc": "密碼驗證框彈出時背景的模糊程度，單位：px。",
   "setting_more_path": "更多需要保護的文件夾或文件(最多6個)",
   "setting_add_path": "添加保護路徑",
   "setting_add_path_name": "保護路徑",

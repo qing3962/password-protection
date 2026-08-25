@@ -32,6 +32,8 @@
   "setting_pwd_hint_question_name": "Mensaje para recordar",
   "setting_pwd_hint_question_desc": "Escribe una frase para ayudarte recordar la contraseña.",
   "place_holder_enter_pwd_hint_question": "Mensaje para recordar",
+  "setting_verify_password_blur_name": "Desenfoque del modal de contraseña",
+  "setting_verify_password_blur_desc": "Desenfoque aplicado al fondo cuando se abre el modal de verificación de contraseña. Unidad: px.",
   "setting_more_path": "Más carpetas o archivos a proteger (hasta 6)",
   "setting_add_path": "Añadir ruta protegida",
   "setting_add_path_name": "Ruta protegida",
